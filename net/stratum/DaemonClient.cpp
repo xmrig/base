@@ -369,7 +369,7 @@ bool xmrig::DaemonClient::parseJob(const rapidjson::Value &params, int *code)
     String blocktemplate = Json::getString(params, kBlocktemplateBlob);
 
     if (blocktemplate.isNull()) {
-        return jobError("Empty block template received from daemon."); // FIXME
+        return jobError("Empty block template received from daemon.");
     }
 
     if (!m_blocktemplate.parse(blocktemplate, m_coin)) {

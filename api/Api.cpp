@@ -155,7 +155,7 @@ void xmrig::Api::exec(IApiRequest &request)
 #       ifdef XMRIG_FEATURE_API
         features.PushBack("api", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_ASM
+#       ifdef XMRIG_FEATURE_ASM // FIXME
         features.PushBack("asm", allocator);
 #       endif
 #       ifdef XMRIG_FEATURE_HTTP
@@ -167,10 +167,10 @@ void xmrig::Api::exec(IApiRequest &request)
 #       ifdef XMRIG_FEATURE_TLS
         features.PushBack("tls", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_OPENCL
+#       ifdef XMRIG_FEATURE_OPENCL // FIXME
         features.PushBack("opencl", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_CUDA
+#       ifdef XMRIG_FEATURE_CUDA // FIXME
         features.PushBack("cuda", allocator);
 #       endif
         reply.AddMember("features", features, allocator);
