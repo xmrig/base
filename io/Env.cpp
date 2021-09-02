@@ -52,12 +52,12 @@ static void createVariables()
     variables.insert({ "XMRIG_VERSION",  APP_VERSION });
     variables.insert({ "XMRIG_KIND",     APP_KIND });
     variables.insert({ "XMRIG_HOSTNAME", Env::hostname() });
-    variables.insert({ "XMRIG_EXE",      Process::exepath() });
-    variables.insert({ "XMRIG_EXE_DIR",  Process::location(Process::ExeLocation) });
-    variables.insert({ "XMRIG_CWD",      Process::location(Process::CwdLocation) });
-    variables.insert({ "XMRIG_HOME_DIR", Process::location(Process::HomeLocation) });
-    variables.insert({ "XMRIG_TEMP_DIR", Process::location(Process::TempLocation) });
-    variables.insert({ "XMRIG_DATA_DIR", Process::location(Process::DataLocation) });
+    variables.insert({ "XMRIG_EXE",      Process::locate(Process::ExePathLocation) });
+    variables.insert({ "XMRIG_EXE_DIR",  Process::locate(Process::ExeLocation) });
+    variables.insert({ "XMRIG_CWD",      Process::locate(Process::CwdLocation) });
+    variables.insert({ "XMRIG_HOME_DIR", Process::locate(Process::HomeLocation) });
+    variables.insert({ "XMRIG_TEMP_DIR", Process::locate(Process::TempLocation) });
+    variables.insert({ "XMRIG_DATA_DIR", Process::locate(Process::DataLocation) });
 
     String hostname = "HOSTNAME";
     if (!getenv(hostname)) { // NOLINT(concurrency-mt-unsafe)

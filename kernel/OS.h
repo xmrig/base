@@ -16,17 +16,25 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <uv.h>
+#ifndef XMRIG_OS_H
+#define XMRIG_OS_H
 
 
-#include "base/kernel/Process.h"
+#include <cstdint>
 
 
-int xmrig::Process::pid()
+namespace xmrig {
+
+
+class OS
 {
-#   if UV_VERSION_HEX >= 0x011200
-    return uv_os_getpid();
-#   else
-    return GetCurrentProcessId();
-#   endif
-}
+public:
+    static uint64_t freemem();
+    static uint64_t totalmem();
+};
+
+
+} // namespace xmrig
+
+
+#endif // XMRIG_OS_H

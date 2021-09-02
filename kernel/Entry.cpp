@@ -34,9 +34,10 @@
 #endif
 
 #include "base/kernel/Entry.h"
-#include "base/kernel/Process.h"
-#include "core/config/usage.h"
 #include "../version.h"
+#include "base/kernel/Process.h"
+#include "base/tools/Arguments.h"
+#include "core/config/usage.h"
 
 
 namespace xmrig {
@@ -98,9 +99,9 @@ static int showVersion()
 
 
 #ifdef XMRIG_FEATURE_HWLOC
-static int exportTopology(const Process &)
+static int exportTopology()
 {
-    const String path = Process::location(Process::ExeLocation, "topology.xml");
+    const String path = Process::locate(Process::ExeLocation, "topology.xml");
 
     hwloc_topology_t topology = nullptr;
     hwloc_topology_init(&topology);
@@ -127,9 +128,9 @@ static int exportTopology(const Process &)
 } // namespace xmrig
 
 
-xmrig::Entry::Id xmrig::Entry::get(const Process &process)
+xmrig::Entry::Id xmrig::Entry::get()
 {
-    const auto &args = process.arguments();
+    const auto &args = Process::arguments();
     if (args.contains("-h") || args.contains("--help")) {
          return Usage;
     }
@@ -154,7 +155,7 @@ xmrig::Entry::Id xmrig::Entry::get(const Process &process)
 }
 
 
-int xmrig::Entry::exec(const Process &process, Id id)
+int xmrig::Entry::exec(Id id)
 {
     switch (id) {
     case Usage:
@@ -166,7 +167,7 @@ int xmrig::Entry::exec(const Process &process, Id id)
 
 #   ifdef XMRIG_FEATURE_HWLOC
     case Topo:
-        return exportTopology(process);
+        return exportTopology();
 #   endif
 
 #   ifdef XMRIG_FEATURE_OPENCL

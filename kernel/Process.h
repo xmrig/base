@@ -20,7 +20,8 @@
 #define XMRIG_PROCESS_H
 
 
-#include "base/tools/Arguments.h"
+#include "base/tools/String.h"
+#include "base/tools/Object.h"
 
 
 #ifdef WIN32
@@ -33,10 +34,17 @@
 namespace xmrig {
 
 
-class [[deprecated]] Process
+class Arguments;
+class ProcessPrivate;
+
+
+class Process
 {
 public:
+    XMRIG_DISABLE_COPY_MOVE_DEFAULT(Process)
+
     enum Location {
+        ExePathLocation,
         ExeLocation,
         CwdLocation,
         DataLocation,
@@ -45,20 +53,20 @@ public:
     };
 
     Process(int argc, char **argv);
+    ~Process();
 
+    static const Arguments &arguments();
     static int pid();
     static int ppid();
-    static String exepath();
-    static String location(Location location, const char *fileName = nullptr);
-
-    inline const Arguments &arguments() const { return m_arguments; }
+    static String locate(Location location, const char *fileName);
+    static String locate(Location location);
 
 private:
-    Arguments m_arguments;
+    static ProcessPrivate *d_ptr;
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_PROCESS_H */
+#endif // XMRIG_PROCESS_H

@@ -19,14 +19,16 @@
 #include <uv.h>
 
 
-#include "base/kernel/Process.h"
+#include "base/kernel/OS.h"
 
 
-int xmrig::Process::pid()
+uint64_t xmrig::OS::freemem()
 {
-#   if UV_VERSION_HEX >= 0x011200
-    return uv_os_getpid();
-#   else
-    return GetCurrentProcessId();
-#   endif
+    return uv_get_free_memory();
+}
+
+
+uint64_t xmrig::OS::totalmem()
+{
+    return uv_get_total_memory();
 }

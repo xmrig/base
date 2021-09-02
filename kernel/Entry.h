@@ -23,9 +23,6 @@
 namespace xmrig {
 
 
-class [[deprecated]] Process;
-
-
 class Entry
 {
 public:
@@ -37,8 +34,8 @@ public:
         Platforms
     };
 
-    static Id get(const Process &process);
-    static int exec(const Process &process, Id id);
+    static Id get();
+    static int exec(Id id);
 };
 
 

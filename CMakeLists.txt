@@ -32,6 +32,7 @@ set(HEADERS
     kernel/config/Title.h
     kernel/constants.h
     kernel/Entry.h
+    kernel/OS.h
     kernel/interfaces/IAsyncListener.h
     kernel/interfaces/IBaseListener.h
     kernel/interfaces/IClient.h
@@ -114,6 +115,7 @@ set(SOURCES
     kernel/config/BaseTransform.cpp
     kernel/config/Title.cpp
     kernel/Entry.cpp
+    kernel/OS.cpp
     kernel/Platform.cpp
     kernel/Process.cpp
     kernel/Versions.cpp

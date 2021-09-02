@@ -23,8 +23,9 @@
 
 #include "base/kernel/Process.h"
 #include "3rdparty/fmt/core.h"
+#include "base/tools/Arguments.h"
 #include "base/tools/Chrono.h"
-#include "version.h"
+#include "../version.h"
 
 
 #ifdef XMRIG_OS_WIN
@@ -42,99 +43,75 @@
 namespace xmrig {
 
 
-static char pathBuf[520];
-static std::string dataDir;
-
-
-static std::string getPath(Process::Location location)
+class ProcessPrivate
 {
-    size_t size = sizeof(pathBuf);
+public:
+    ProcessPrivate(int argc, char **argv) : arguments(argc, argv) {}
 
-    if (location == Process::DataLocation) {
-        if (!dataDir.empty()) {
-            return dataDir;
+    void setDataDir(const char *path)
+    {
+        if (path == nullptr) {
+            return;
         }
 
-        location = Process::ExeLocation;
-    }
-
-    if (location == Process::HomeLocation) {
-#       if UV_VERSION_HEX >= 0x010600
-        return uv_os_homedir(pathBuf, &size) < 0 ? "" : std::string(pathBuf, size);
-#       else
-        location = Process::ExeLocation;
-#       endif
-    }
-
-    if (location == Process::TempLocation) {
-#       if UV_VERSION_HEX >= 0x010900
-        return uv_os_tmpdir(pathBuf, &size) < 0 ? "" : std::string(pathBuf, size);
-#       else
-        location = Process::ExeLocation;
-#       endif
-    }
-
-    if (location == Process::ExeLocation) {
-        if (uv_exepath(pathBuf, &size) < 0) {
-            return {};
+        std::string dir = path;
+        if (!dir.empty() && (dir.back() == '/' || dir.back() == '\\')) {
+            dir.pop_back();
         }
 
-        auto path       = std::string(pathBuf, size);
-        const auto pos  = path.rfind(*XMRIG_DIR_SEPARATOR);
-
-        if (pos != std::string::npos) {
-            return path.substr(0, pos);
+        if (!dir.empty() && uv_chdir(dir.c_str()) == 0) {
+            dataDir = { dir.data(), dir.size() };
         }
-
-        return path;
     }
 
-    if (location == Process::CwdLocation) {
-        return uv_cwd(pathBuf, &size) < 0 ? "" : std::string(pathBuf, size);
-    }
-
-    return {};
-}
+    Arguments arguments;
+    String dataDir;
+};
 
 
-static void setDataDir(const char *path)
-{
-    if (path == nullptr) {
-        return;
-    }
-
-    std::string dir = path;
-    if (!dir.empty() && (dir.back() == '/' || dir.back() == '\\')) {
-        dir.pop_back();
-    }
-
-    if (!dir.empty() && uv_chdir(dir.c_str()) == 0) {
-        dataDir = dir;
-    }
-}
+ProcessPrivate *Process::d_ptr  = nullptr;
 
 
 } // namespace xmrig
 
 
-xmrig::Process::Process(int argc, char **argv) :
-    m_arguments(argc, argv)
+xmrig::Process::Process(int argc, char **argv)
 {
+    d_ptr = new ProcessPrivate(argc, argv);
+
     srand(static_cast<unsigned int>(Chrono::currentMSecsSinceEpoch() ^ reinterpret_cast<uintptr_t>(this)));
 
-    setDataDir(m_arguments.value("--data-dir", "-d"));
+    d_ptr->setDataDir(arguments().value("--data-dir", "-d"));
 
 #   ifdef XMRIG_SHARED_DATADIR
-    if (dataDir.empty()) {
-        dataDir = fmt::format("{}" XMRIG_DIR_SEPARATOR ".xmrig" XMRIG_DIR_SEPARATOR, location(HomeLocation));
+    if (d_ptr->dataDir.isEmpty()) {
+        auto dataDir = fmt::format("{}" XMRIG_DIR_SEPARATOR ".xmrig" XMRIG_DIR_SEPARATOR, locate(HomeLocation));
         MKDIR(dataDir);
 
         dataDir += APP_KIND;
         MKDIR(dataDir);
 
-        uv_chdir(dataDir.c_str());
+        if (uv_chdir(dataDir.c_str()) == 0) {
+            d_ptr->dataDir = { dataDir.c_str(), dataDir.size() };
+        }
     }
 #   endif
+
+    if (d_ptr->dataDir.isEmpty()) {
+        d_ptr->dataDir = locate(ExeLocation);
+    }
+}
+
+
+xmrig::Process::~Process()
+{
+    delete d_ptr;
+}
+
+
+const xmrig::Arguments &xmrig::Process::arguments()
+{
+    return d_ptr->arguments;
 }
 
 
@@ -148,20 +125,60 @@ int xmrig::Process::ppid()
 }
 
 
-xmrig::String xmrig::Process::exepath()
+xmrig::String xmrig::Process::locate(Location location, const char *fileName)
 {
-    size_t size = sizeof(pathBuf);
-
-    return uv_exepath(pathBuf, &size) < 0 ? "" : String(pathBuf, size);
-}
-
-
-xmrig::String xmrig::Process::location(Location location, const char *fileName)
-{
-    auto path = getPath(location);
-    if (path.empty() || fileName == nullptr) {
-        return path.c_str();
+    auto path = locate(location);
+    if (path.isNull() || fileName == nullptr) {
+        return path;
     }
 
     return fmt::format("{}" XMRIG_DIR_SEPARATOR "{}", path, fileName).c_str();
+}
+
+
+xmrig::String xmrig::Process::locate(Location location)
+{
+    static char buf[520]{};
+    size_t size = sizeof(buf);
+
+    if (location == ExePathLocation && uv_exepath(buf, &size) >= 0) {
+        return { buf, size };
+    }
+
+    if (location == Process::DataLocation && !d_ptr->dataDir.isEmpty()) {
+        return d_ptr->dataDir;
+    }
+
+#   if UV_VERSION_HEX >= 0x010600
+    if (location == Process::HomeLocation && uv_os_homedir(buf, &size) >= 0) {
+        return { buf, size };
+    }
+#   endif
+
+#   if UV_VERSION_HEX >= 0x010900
+    if (location == Process::TempLocation && uv_os_tmpdir(buf, &size) >= 0) {
+        return { buf, size };
+    }
+#   endif
+
+    if (location == Process::CwdLocation && uv_cwd(buf, &size) >= 0) {
+        return { buf, size };
+    }
+
+    if (location == Process::ExeLocation) {
+        if (uv_exepath(buf, &size) < 0) {
+            return {};
+        }
+
+        auto path       = std::string(buf, size);
+        const auto pos  = path.rfind(*XMRIG_DIR_SEPARATOR);
+
+        if (pos != std::string::npos) {
+            return path.substr(0, pos).c_str();
+        }
+
+        return { buf, size };
+    }
+
+    return location != ExeLocation ? locate(ExeLocation) : String();
 }
