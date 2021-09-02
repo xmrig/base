@@ -135,7 +135,7 @@ void xmrig::Arguments::add(const char *arg)
     }
 
     if (size > 3) {
-        char *p = nullptr;
+        const char *p = nullptr;
 
         if (size > 5 && (p = strchr(arg, '='))) {
             const auto ks = static_cast<size_t>(p - arg);
