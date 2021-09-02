@@ -36,6 +36,7 @@ namespace xmrig {
 
 class Arguments;
 class ProcessPrivate;
+class Versions;
 
 
 class Process
@@ -56,6 +57,8 @@ public:
     ~Process();
 
     static const Arguments &arguments();
+    static const char *version();
+    static const Versions &versions();
     static int pid();
     static int ppid();
     static String locate(Location location, const char *fileName);

@@ -27,7 +27,7 @@
 
 
 #include "base/kernel/Platform.h"
-#include "../version.h"
+#include "version.h"
 
 
 char *xmrig::Platform::createUserAgent()

@@ -23,9 +23,10 @@
 
 #include "base/kernel/Process.h"
 #include "3rdparty/fmt/core.h"
+#include "base/kernel/Versions.h"
 #include "base/tools/Arguments.h"
 #include "base/tools/Chrono.h"
-#include "../version.h"
+#include "version.h"
 
 
 #ifdef XMRIG_OS_WIN
@@ -65,7 +66,9 @@ public:
     }
 
     Arguments arguments;
+    const char *version = APP_VERSION;
     String dataDir;
+    Versions versions;
 };
 
 
@@ -115,6 +118,18 @@ const xmrig::Arguments &xmrig::Process::arguments()
 }
 
 
+const char *xmrig::Process::version()
+{
+    return d_ptr->version;
+}
+
+
+const xmrig::Versions &xmrig::Process::versions()
+{
+    return d_ptr->versions;
+}
+
+
 int xmrig::Process::ppid()
 {
 #   if UV_VERSION_HEX >= 0x011000
@@ -138,7 +153,7 @@ xmrig::String xmrig::Process::locate(Location location, const char *fileName)
 
 xmrig::String xmrig::Process::locate(Location location)
 {
-    static char buf[520]{};
+    char buf[520]{};
     size_t size = sizeof(buf);
 
     if (location == ExePathLocation && uv_exepath(buf, &size) >= 0) {

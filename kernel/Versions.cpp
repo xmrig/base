@@ -19,7 +19,7 @@
 #include "base/kernel/Versions.h"
 #include "3rdparty/fmt/core.h"
 #include "3rdparty/rapidjson/document.h"
-#include "base/kernel/version.h"
+#include "version.h"
 
 
 #include <uv.h>
@@ -53,54 +53,112 @@
 namespace xmrig {
 
 
-std::map<String, String> Versions::m_data;
+const char *Versions::kApp          = "app";
+const char *Versions::kBase         = "base";
+const char *Versions::kFmt          = "fmt";
+const char *Versions::kRapidjson    = "rapidjson";
+const char *Versions::kUv           = "uv";
+
+#if defined(__clang__)
+    const char *Versions::kCompiler = "clang";
+#elif defined(__GNUC__)
+    const char *Versions::kCompiler = "gcc";
+#elif defined(_MSC_VER)
+    const char *Versions::kCompiler = "MSVC";
+#else
+    const char *Versions::kCompiler = "unknown";
+#endif
+
+
+#ifdef XMRIG_FEATURE_HTTP
+const char *Versions::kLlhttp       = "llhttp";
+#endif
+
+#ifdef XMRIG_FEATURE_TLS
+#   if defined(LIBRESSL_VERSION_TEXT)
+    const char *Versions::kTls      = "libressl";
+#   else
+    const char *Versions::kTls      = "openssl";
+#   endif
+#endif
+
+#ifdef XMRIG_FEATURE_SODIUM
+const char *Versions::kSodium       = "sodium";
+#endif
+
+#ifdef XMRIG_FEATURE_SQLITE
+const char *Versions::kSqlite       = "sqlite";
+#endif
+
+#ifdef XMRIG_FEATURE_HWLOC
+const char *Versions::kHwloc        = "hwloc";
+#endif
+
+#ifdef XMRIG_FEATURE_POSTGRESQL
+const char *kPq                     = "pq";
+#endif
 
 
 } // namespace xmrig
 
 
-const std::map<xmrig::String, xmrig::String> &xmrig::Versions::get()
+xmrig::Versions::Versions()
 {
-    if (m_data.empty()) {
-        m_data.insert({ "base",         BASE_VERSION });
-        m_data.insert({ "uv",           uv_version_string() });
-        m_data.insert({ "rapidjson",    RAPIDJSON_VERSION_STRING });
-        m_data.insert({ "fmt",          fmt::format("{}.{}.{}", FMT_VERSION / 10000, FMT_VERSION / 100 % 100, FMT_VERSION % 100).c_str() });
+    m_data.insert({ kApp,           APP_VERSION });
+    m_data.insert({ kBase,          BASE_VERSION });
+    m_data.insert({ kUv,            uv_version_string() });
+    m_data.insert({ kRapidjson,     RAPIDJSON_VERSION_STRING });
+    m_data.insert({ kFmt,           fmt::format("{}.{}.{}", FMT_VERSION / 10000, FMT_VERSION / 100 % 100, FMT_VERSION % 100).c_str() });
 
-#       ifdef XMRIG_FEATURE_HTTP
-        m_data.insert({ "llhttp", XMRIG_TOSTRING(LLHTTP_VERSION_MAJOR.LLHTTP_VERSION_MINOR.LLHTTP_VERSION_PATCH) });
-#       endif
+#   if defined(__clang__)
+    m_data.insert({ kCompiler,      XMRIG_TOSTRING(__clang_major__.__clang_minor__.__clang_patchlevel__) });
+#   elif defined(__GNUC__)
+    m_data.insert({ kCompiler,      XMRIG_TOSTRING(__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__) });
+#   elif defined(_MSC_VER)
+    m_data.insert({ kCompiler,      XMRIG_TOSTRING(MSVC_VERSION) });
+#   endif
 
-#       ifdef XMRIG_FEATURE_TLS
-#       if defined(LIBRESSL_VERSION_TEXT)
-        m_data.insert({ "libressl", String(LIBRESSL_VERSION_TEXT).split(' ')[1] });
-#       elif defined(OPENSSL_VERSION_TEXT)
-        m_data.insert({ "openssl", String(OPENSSL_VERSION_TEXT).split(' ')[1] });
-#       endif
-#       endif
+#   ifdef XMRIG_FEATURE_HTTP
+    m_data.insert({ kLlhttp,        XMRIG_TOSTRING(LLHTTP_VERSION_MAJOR.LLHTTP_VERSION_MINOR.LLHTTP_VERSION_PATCH) });
+#   endif
 
-#       ifdef XMRIG_FEATURE_SODIUM
-        m_data.insert({ "sodium", sodium_version_string() });
-#       endif
+#   ifdef XMRIG_FEATURE_TLS
+#   if defined(LIBRESSL_VERSION_TEXT)
+    m_data.insert({ kTls,           String(LIBRESSL_VERSION_TEXT).split(' ')[1] });
+#   elif defined(OPENSSL_VERSION_TEXT)
+    m_data.insert({ kTls,           String(OPENSSL_VERSION_TEXT).split(' ')[1] });
+#   endif
+#   endif
 
-#       ifdef XMRIG_FEATURE_SQLITE
-        m_data.insert({ "sqlite", sqlite3_libversion() });
-#       endif
+#   ifdef XMRIG_FEATURE_SODIUM
+    m_data.insert({ kSodium,        sodium_version_string() });
+#   endif
 
-#       ifdef XMRIG_FEATURE_HWLOC
-        m_data.insert({ "hwloc", String(Cpu::info()->backend()).split('/')[1] });
-#       endif
+#   ifdef XMRIG_FEATURE_SQLITE
+    m_data.insert({ kSqlite,        sqlite3_libversion() });
+#   endif
 
-#       ifdef XMRIG_FEATURE_POSTGRESQL
-        m_data.insert({ "pq", fmt::format("{}.{}", PQlibVersion() / 10000, PQlibVersion() % 100).c_str() });
-#       endif
-    }
+#   ifdef XMRIG_FEATURE_HWLOC
+//    m_data.insert({ kHwloc,         String(Cpu::info()->backend()).split('/')[1] }); // FIXME
+#   endif
 
-    return m_data;
+#   ifdef XMRIG_FEATURE_POSTGRESQL
+    m_data.insert({ kPq,            fmt::format("{}.{}", PQlibVersion() / 10000, PQlibVersion() % 100).c_str() });
+#   endif
 }
 
 
-rapidjson::Value xmrig::Versions::toJSON(rapidjson::Document &doc)
+const xmrig::String &xmrig::Versions::get(const char *key) const
+{
+    static const String empty;
+
+    const auto it = m_data.find(key);
+
+    return it != m_data.end() ? it->second : empty;
+}
+
+
+rapidjson::Value xmrig::Versions::toJSON(rapidjson::Document &doc) const
 {
     using namespace rapidjson;
 
@@ -111,7 +169,7 @@ rapidjson::Value xmrig::Versions::toJSON(rapidjson::Document &doc)
 }
 
 
-void xmrig::Versions::toJSON(rapidjson::Value &out, rapidjson::Document &doc)
+void xmrig::Versions::toJSON(rapidjson::Value &out, rapidjson::Document &doc) const
 {
     auto &allocator  = doc.GetAllocator();
     const auto &data = get();

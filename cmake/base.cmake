@@ -26,6 +26,7 @@ if (WITH_DEBUG_LOG)
 endif()
 
 include(CheckIncludeFile)
+include(git)
 include(cpu)
 include(os)
 include(flags)

@@ -32,12 +32,48 @@ namespace xmrig {
 class Versions
 {
 public:
-    static const std::map<String, String> &get();
-    static rapidjson::Value toJSON(rapidjson::Document &doc);
-    static void toJSON(rapidjson::Value &out, rapidjson::Document &doc);
+    static const char *kApp;
+    static const char *kBase;
+    static const char *kCompiler;
+    static const char *kFmt;
+    static const char *kRapidjson;
+    static const char *kUv;
+
+#   ifdef XMRIG_FEATURE_HTTP
+    static const char *kLlhttp;
+#   endif
+
+#   ifdef XMRIG_FEATURE_TLS
+    static const char *kTls;
+#   endif
+
+#   ifdef XMRIG_FEATURE_SODIUM
+    static const char *kSodium;
+#   endif
+
+#   ifdef XMRIG_FEATURE_SQLITE
+    static const char *kSqlite;
+#   endif
+
+#   ifdef XMRIG_FEATURE_HWLOC
+    static const char *kHwloc;
+#   endif
+
+#   ifdef XMRIG_FEATURE_POSTGRESQL
+    static const char *kPq;
+#   endif
+
+    Versions();
+
+    inline const std::map<String, String> &get() const          { return m_data; }
+    inline const String &operator[](const char *key) const      { return get(key); }
+
+    const String &get(const char *key) const;
+    rapidjson::Value toJSON(rapidjson::Document &doc) const;
+    void toJSON(rapidjson::Value &out, rapidjson::Document &doc) const;
 
 private:
-    static std::map<String, String> m_data;
+    std::map<String, String> m_data;
 };
 
 

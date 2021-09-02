@@ -24,7 +24,7 @@
 
 
 #include "base/kernel/Platform.h"
-#include "../version.h"
+#include "version.h"
 
 
 static inline OSVERSIONINFOEX winOsVersion()

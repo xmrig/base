@@ -34,10 +34,10 @@
 #endif
 
 #include "base/kernel/Entry.h"
-#include "../version.h"
 #include "base/kernel/Process.h"
 #include "base/tools/Arguments.h"
 #include "core/config/usage.h"
+#include "version.h"
 
 
 namespace xmrig {

@@ -26,13 +26,13 @@ set(HEADERS
     io/log/Tags.h
     io/Signals.h
     io/Watcher.h
+    kernel/base-version.h
     kernel/Base.h
     kernel/config/BaseConfig.h
     kernel/config/BaseTransform.h
     kernel/config/Title.h
     kernel/constants.h
     kernel/Entry.h
-    kernel/OS.h
     kernel/interfaces/IAsyncListener.h
     kernel/interfaces/IBaseListener.h
     kernel/interfaces/IClient.h
@@ -52,6 +52,7 @@ set(HEADERS
     kernel/interfaces/ITcpServerListener.h
     kernel/interfaces/ITimerListener.h
     kernel/interfaces/IWatcherListener.h
+    kernel/OS.h
     kernel/Platform.h
     kernel/Process.h
     kernel/Versions.h
