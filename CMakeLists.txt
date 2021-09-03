@@ -148,6 +148,7 @@ set(SOURCES
 if (XMRIG_OS_WIN)
     list(APPEND SOURCES
         io/json/Json_win.cpp
+        kernel/Entry_win.cpp
         kernel/Platform_win.cpp
         kernel/Process_win.cpp
         )
@@ -156,6 +157,7 @@ if (XMRIG_OS_WIN)
 elseif (XMRIG_OS_APPLE)
     list(APPEND SOURCES
         io/json/Json_unix.cpp
+        kernel/Entry_unix.cpp
         kernel/Platform_mac.cpp
         kernel/Process_unix.cpp
         )
@@ -166,6 +168,7 @@ elseif (XMRIG_OS_APPLE)
 else()
     list(APPEND SOURCES
         io/json/Json_unix.cpp
+        kernel/Entry_unix.cpp
         kernel/Platform_unix.cpp
         kernel/Process_unix.cpp
         )

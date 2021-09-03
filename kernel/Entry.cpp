@@ -17,9 +17,10 @@
  */
 
 #include "base/kernel/Entry.h"
+#include "base/io/log/Log.h"
 #include "base/kernel/Process.h"
-#include "base/tools/Arguments.h"
 #include "base/kernel/Versions.h"
+#include "base/tools/Arguments.h"
 #include "version.h"
 
 
@@ -116,12 +117,23 @@ xmrig::Entry::Entry(const Usage &usage)
         std::cout << "  -V, --version                 print " APP_ID " version and exit\n";
         std::cout << "      --versions                print versions and exit\n";
         std::cout << "  -d, --data-dir=<PATH>         specify an alternative working directory\n";
+        std::cout << "  -B, --background              run " APP_ID " in the background\n";
 
 #       ifdef XMRIG_FEATURE_HWLOC
         std::cout << "      --export-topology         export hwloc topology to a XML file and exit\n";
 #       endif
 
         return true;
+    });
+
+    add([](int &rc) {
+        if (Process::arguments().contains("-B", "--background")) {
+            Log::setBackground(true);
+
+            return background(rc);
+        }
+
+        return false;
     });
 }
 

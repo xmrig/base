@@ -16,42 +16,23 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_ENTRY_H
-#define XMRIG_ENTRY_H
+#include <winsock2.h>
+#include <windows.h>
 
 
-#include "base/tools/Object.h"
+#include "base/kernel/Entry.h"
 
 
-#include <functional>
-#include <string>
-#include <vector>
-
-
-namespace xmrig {
-
-
-class Entry
+bool xmrig::Entry::background(int &)
 {
-public:
-    XMRIG_DISABLE_COPY_MOVE(Entry)
+    HWND hcon = GetConsoleWindow();
+    if (hcon) {
+        ShowWindow(hcon, SW_HIDE);
+    } else {
+        HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+        CloseHandle(h);
+        FreeConsole();
+    }
 
-    using Fn    = std::function<bool(int &rc)>;
-    using Usage = std::function<std::string()>;
-
-    Entry(const Usage &usage);
-
-    bool exec(int &rc) const;
-    void add(Fn &&fn);
-
-private:
-    static bool background(int &rc);
-
-    std::vector<Entry::Fn> m_entries;
-};
-
-
-} /* namespace xmrig */
-
-
-#endif /* XMRIG_ENTRY_H */
+    return false;
+}
