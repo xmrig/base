@@ -188,10 +188,7 @@ int xmrig::Base::init()
 
     Platform::init(config()->userAgent());
 
-    if (isBackground()) {
-        Log::setBackground(true);
-    }
-    else {
+    if (!Log::isBackground()) {
         Log::add(new ConsoleLog(config()->title()));
     }
 
@@ -241,12 +238,6 @@ xmrig::Api *xmrig::Base::api() const
     assert(d_ptr->api != nullptr);
 
     return d_ptr->api;
-}
-
-
-bool xmrig::Base::isBackground() const
-{
-    return d_ptr->config && d_ptr->config->isBackground();
 }
 
 

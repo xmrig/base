@@ -279,9 +279,6 @@ void xmrig::BaseTransform::transform(rapidjson::Document &doc, int key, const ch
 void xmrig::BaseTransform::transformBoolean(rapidjson::Document &doc, int key, bool enable)
 {
     switch (key) {
-    case IConfig::BackgroundKey: /* --background */
-        return set(doc, BaseConfig::kBackground, enable);
-
     case IConfig::SyslogKey: /* --syslog */
         return set(doc, BaseConfig::kSyslog, enable);
 

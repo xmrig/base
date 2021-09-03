@@ -50,7 +50,6 @@ const char *BaseConfig::kApi            = "api";
 const char *BaseConfig::kApiId          = "id";
 const char *BaseConfig::kApiWorkerId    = "worker-id";
 const char *BaseConfig::kAutosave       = "autosave";
-const char *BaseConfig::kBackground     = "background";
 const char *BaseConfig::kColors         = "colors";
 const char *BaseConfig::kDryRun         = "dry-run";
 const char *BaseConfig::kHttp           = "http";
@@ -80,7 +79,6 @@ bool xmrig::BaseConfig::read(const IJsonReader &reader, const char *fileName)
     }
 
     m_autoSave          = reader.getBool(kAutosave, m_autoSave);
-    m_background        = reader.getBool(kBackground, m_background);
     m_dryRun            = reader.getBool(kDryRun, m_dryRun);
     m_syslog            = reader.getBool(kSyslog, m_syslog);
     m_watch             = reader.getBool(kWatch, m_watch);
