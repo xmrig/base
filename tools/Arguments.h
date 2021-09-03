@@ -38,6 +38,19 @@ public:
     Arguments(int argc, char **argv);
 
     template<typename... Args>
+    bool contains(Args... args) const {
+        static_assert(sizeof...(args) >= 2, "Expected at least 2 arguments");
+
+        for (const char *key : { args... }) {
+            if (contains(key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    template<typename... Args>
     const String &value(Args... args) const {
         static_assert(sizeof...(args) >= 2, "Expected at least 2 arguments");
 

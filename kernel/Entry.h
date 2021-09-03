@@ -20,22 +20,32 @@
 #define XMRIG_ENTRY_H
 
 
+#include "base/tools/Object.h"
+
+
+#include <functional>
+#include <string>
+#include <vector>
+
+
 namespace xmrig {
 
 
 class Entry
 {
 public:
-    enum Id {
-        Default,
-        Usage,
-        Version,
-        Topo,
-        Platforms
-    };
+    XMRIG_DISABLE_COPY_MOVE(Entry)
 
-    static Id get();
-    static int exec(Id id);
+    using Fn    = std::function<bool(int &rc)>;
+    using Usage = std::function<std::string()>;
+
+    Entry(const Usage &usage);
+
+    bool exec(int &rc) const;
+    void add(Fn &&fn);
+
+private:
+    std::vector<Entry::Fn> m_entries;
 };
 
 
