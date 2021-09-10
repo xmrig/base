@@ -19,14 +19,13 @@
 
 #include "base/io/log/backends/ConsoleLog.h"
 #include "base/io/log/Log.h"
-#include "base/kernel/config/Title.h"
 #include "base/tools/Handle.h"
 
 
 #include <cstdio>
 
 
-xmrig::ConsoleLog::ConsoleLog(const Title &title)
+xmrig::ConsoleLog::ConsoleLog()
 {
     if (!isSupported()) {
         Log::setColors(false);
@@ -52,10 +51,6 @@ xmrig::ConsoleLog::ConsoleLog(const Title &title)
            mode &= ~ENABLE_QUICK_EDIT_MODE;
            SetConsoleMode(handle, mode | ENABLE_EXTENDED_FLAGS);
         }
-    }
-
-    if (title.isEnabled()) {
-        SetConsoleTitleA(title.value());
     }
 #   endif
 }

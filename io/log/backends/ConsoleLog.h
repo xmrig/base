@@ -40,7 +40,7 @@ class ConsoleLog : public ILogBackend
 public:
     XMRIG_DISABLE_COPY_MOVE(ConsoleLog)
 
-    ConsoleLog(const Title &title);
+    ConsoleLog();
     ~ConsoleLog() override;
 
 protected:

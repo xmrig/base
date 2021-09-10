@@ -16,23 +16,48 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "base/io/Signals.h"
-#include "base/kernel/interfaces/ISignalListener.h"
 #include "base/io/log/Log.h"
-#include "base/io/log/Tags.h"
+#include "base/kernel/Events.h"
+#include "base/kernel/events/SignalEvent.h"
+#include "base/kernel/Process.h"
 #include "base/tools/Handle.h"
 
 
+namespace xmrig {
+
+
 #ifdef SIGUSR1
-static const int signums[xmrig::Signals::kSignalsCount] = { SIGHUP, SIGINT, SIGTERM, SIGUSR1 };
+static constexpr const int signums[Signals::kSignalsCount] = { SIGHUP, SIGINT, SIGTERM, SIGUSR1 };
 #else
-static const int signums[xmrig::Signals::kSignalsCount] = { SIGHUP, SIGINT, SIGTERM };
+static constexpr const int signums[Signals::kSignalsCount] = { SIGHUP, SIGINT, SIGTERM };
 #endif
 
 
-xmrig::Signals::Signals(ISignalListener *listener)
-    : m_listener(listener)
+static constexpr const char *signame(int signum)
+{
+    switch (signum) {
+    case SIGHUP:
+        return "SIGHUP";
+
+    case SIGINT:
+        return "SIGINT";
+
+    case SIGTERM:
+        return "SIGTERM";
+
+    default:
+        break;
+    }
+
+    return nullptr;
+}
+
+
+} // namespace xmrig
+
+
+xmrig::Signals::Signals()
 {
 #   ifndef XMRIG_OS_WIN
     signal(SIGPIPE, SIG_IGN);
@@ -58,31 +83,28 @@ xmrig::Signals::~Signals()
 }
 
 
-void xmrig::Signals::onSignal(uv_signal_t *handle, int signum)
+const char *xmrig::Signals::tag()
 {
+    static const char *tag = YELLOW_BG_BOLD(WHITE_BOLD_S " signal  ");
+
+    return tag;
+}
+
+
+void xmrig::Signals::onSignal(uv_signal_t * /*handle*/, int signum)
+{
+    Process::events().send<SignalEvent>(signum);
+
     switch (signum)
     {
     case SIGHUP:
-        LOG_WARN("%s " YELLOW("SIGHUP received, exiting"), Tags::signal());
-        break;
-
     case SIGTERM:
-        LOG_WARN("%s " YELLOW("SIGTERM received, exiting"), Tags::signal());
-        break;
-
     case SIGINT:
-        LOG_WARN("%s " YELLOW("SIGINT received, exiting"), Tags::signal());
+        LOG_WARN("%s " YELLOW_BOLD("%s ") YELLOW("received, exiting"), tag(), signame(signum));
+        Process::exit(128 + signum);
         break;
-
-#   ifdef SIGUSR1
-    case SIGUSR1:
-        LOG_V5("%s " WHITE_BOLD("SIGUSR1 received"), Tags::signal());
-        break;
-#   endif
 
     default:
         break;
     }
-
-    static_cast<Signals *>(handle->data)->m_listener->onSignal(signum);
 }

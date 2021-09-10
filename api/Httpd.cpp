@@ -23,8 +23,8 @@
 #include "base/net/http/HttpApiResponse.h"
 #include "base/net/http/HttpData.h"
 #include "base/net/tools/TcpServer.h"
-#include "core/config/Config.h"
-#include "core/Controller.h"
+//#include "core/config/Config.h"
+//#include "core/Controller.h"
 
 
 #ifdef XMRIG_FEATURE_TLS
@@ -51,7 +51,7 @@ xmrig::Httpd::Httpd(Base *base) :
 {
     m_httpListener = std::make_shared<HttpListener>(this);
 
-    base->addListener(this);
+//    base->addListener(this);
 }
 
 
@@ -60,51 +60,51 @@ xmrig::Httpd::~Httpd() = default;
 
 bool xmrig::Httpd::start()
 {
-    const auto &config = m_base->config()->http();
+//    const auto &config = m_base->config()->http();
 
-    if (!config.isEnabled()) {
-        return true;
-    }
+//    if (!config.isEnabled()) {
+//        return true;
+//    }
 
-    bool tls = false;
+//    bool tls = false;
 
-#   ifdef XMRIG_FEATURE_TLS
-    m_http = new HttpsServer(m_httpListener);
-    tls = m_http->setTls(m_base->config()->tls());
-#   else
-    m_http = new HttpServer(m_httpListener);
-#   endif
+//#   ifdef XMRIG_FEATURE_TLS
+//    m_http = new HttpsServer(m_httpListener);
+//    tls = m_http->setTls(m_base->config()->tls());
+//#   else
+//    m_http = new HttpServer(m_httpListener);
+//#   endif
 
-    m_server = new TcpServer(config.host(), config.port(), m_http);
+//    m_server = new TcpServer(config.host(), config.port(), m_http);
 
-    const int rc = m_server->bind();
-    Log::print(GREEN_BOLD(" * ") WHITE_BOLD("%-13s") CSI "1;%dm%s:%d" " " RED_BOLD("%s"),
-               "HTTP API",
-               tls ? 32 : 36,
-               config.host().data(),
-               rc < 0 ? config.port() : rc,
-               rc < 0 ? uv_strerror(rc) : ""
-               );
+//    const int rc = m_server->bind();
+//    Log::print(GREEN_BOLD(" * ") WHITE_BOLD("%-13s") CSI "1;%dm%s:%d" " " RED_BOLD("%s"),
+//               "HTTP API",
+//               tls ? 32 : 36,
+//               config.host().data(),
+//               rc < 0 ? config.port() : rc,
+//               rc < 0 ? uv_strerror(rc) : ""
+//               );
 
-    if (rc < 0) {
-        stop();
+//    if (rc < 0) {
+//        stop();
 
-        return false;
-    }
+//        return false;
+//    }
 
-    m_port = static_cast<uint16_t>(rc);
+//    m_port = static_cast<uint16_t>(rc);
 
-#   ifdef _WIN32
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
-    HRSRC src = FindResource(nullptr, MAKEINTRESOURCE(1), RT_ICON);
-    if (src != nullptr) {
-        HGLOBAL res = LoadResource(nullptr, src);
-        if (res != nullptr) {
-            favicon     = static_cast<const char *>(LockResource(res));
-            faviconSize = SizeofResource(nullptr, src);
-        }
-    }
-#   endif
+//#   ifdef _WIN32
+//    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
+//    HRSRC src = FindResource(nullptr, MAKEINTRESOURCE(1), RT_ICON);
+//    if (src != nullptr) {
+//        HGLOBAL res = LoadResource(nullptr, src);
+//        if (res != nullptr) {
+//            favicon     = static_cast<const char *>(LockResource(res));
+//            faviconSize = SizeofResource(nullptr, src);
+//        }
+//    }
+//#   endif
 
     return true;
 }
@@ -122,77 +122,78 @@ void xmrig::Httpd::stop()
 
 
 
-void xmrig::Httpd::onConfigChanged(Config *config, Config *previousConfig)
-{
-    if (config->http() == previousConfig->http()) {
-        return;
-    }
+//void xmrig::Httpd::onConfigChanged(Config *config, Config *previousConfig)
+//{
+//    if (config->http() == previousConfig->http()) {
+//        return;
+//    }
 
-    stop();
-    start();
-}
+//    stop();
+//    start();
+//}
 
 
 void xmrig::Httpd::onHttpData(const HttpData &data)
 {
-    if (data.method == HTTP_OPTIONS) {
-        return HttpApiResponse(data.id()).end();
-    }
+//    if (data.method == HTTP_OPTIONS) {
+//        return HttpApiResponse(data.id()).end();
+//    }
 
-    if (data.method == HTTP_GET && data.url == "/favicon.ico") {
-#       ifdef _WIN32
-        if (favicon != nullptr) {
-            HttpResponse response(data.id());
-            response.setHeader(HttpData::kContentType, "image/x-icon");
+//    if (data.method == HTTP_GET && data.url == "/favicon.ico") {
+//#       ifdef _WIN32
+//        if (favicon != nullptr) {
+//            HttpResponse response(data.id());
+//            response.setHeader(HttpData::kContentType, "image/x-icon");
 
-            return response.end(favicon, faviconSize);
-        }
-#       endif
+//            return response.end(favicon, faviconSize);
+//        }
+//#       endif
 
-        return HttpResponse(data.id(), 404 /* NOT_FOUND */).end();
-    }
+//        return HttpResponse(data.id(), 404 /* NOT_FOUND */).end();
+//    }
 
-    if (data.method > 4) {
-        return HttpApiResponse(data.id(), 405 /* METHOD_NOT_ALLOWED */).end();
-    }
+//    if (data.method > 4) {
+//        return HttpApiResponse(data.id(), 405 /* METHOD_NOT_ALLOWED */).end();
+//    }
 
-    const int status = auth(data);
-    if (status != 200) {
-        return HttpApiResponse(data.id(), status).end();
-    }
+//    const int status = auth(data);
+//    if (status != 200) {
+//        return HttpApiResponse(data.id(), status).end();
+//    }
 
-    if (data.method != HTTP_GET) {
-        if (m_base->config()->http().isRestricted()) {
-            return HttpApiResponse(data.id(), 403 /* FORBIDDEN */).end();
-        }
+//    if (data.method != HTTP_GET) {
+//        if (m_base->config()->http().isRestricted()) {
+//            return HttpApiResponse(data.id(), 403 /* FORBIDDEN */).end();
+//        }
 
-        if (!data.headers.count(HttpData::kContentTypeL) || data.headers.at(HttpData::kContentTypeL) != HttpData::kApplicationJson) {
-            return HttpApiResponse(data.id(), 415 /* UNSUPPORTED_MEDIA_TYPE */).end();
-        }
-    }
+//        if (!data.headers.count(HttpData::kContentTypeL) || data.headers.at(HttpData::kContentTypeL) != HttpData::kApplicationJson) {
+//            return HttpApiResponse(data.id(), 415 /* UNSUPPORTED_MEDIA_TYPE */).end();
+//        }
+//    }
 
-    m_base->api()->request(data);
+//    m_base->api()->request(data);
 }
 
 
 int xmrig::Httpd::auth(const HttpData &req) const
 {
-    const Http &config = m_base->config()->http();
+//    const Http &config = m_base->config()->http();
 
-    if (!req.headers.count(kAuthorization)) {
-        return config.isAuthRequired() ? 401 /* UNAUTHORIZED */ : 200;
-    }
+//    if (!req.headers.count(kAuthorization)) {
+//        return config.isAuthRequired() ? 401 /* UNAUTHORIZED */ : 200;
+//    }
 
-    if (config.token().isNull()) {
-        return 401 /* UNAUTHORIZED */;
-    }
+//    if (config.token().isNull()) {
+//        return 401 /* UNAUTHORIZED */;
+//    }
 
-    const std::string &token = req.headers.at(kAuthorization);
-    const size_t size        = token.size();
+//    const std::string &token = req.headers.at(kAuthorization);
+//    const size_t size        = token.size();
 
-    if (token.size() < 8 || config.token().size() != size - 7 || memcmp("Bearer ", token.c_str(), 7) != 0) {
-        return 403 /* FORBIDDEN */;
-    }
+//    if (token.size() < 8 || config.token().size() != size - 7 || memcmp("Bearer ", token.c_str(), 7) != 0) {
+//        return 403 /* FORBIDDEN */;
+//    }
 
-    return strncmp(config.token().data(), token.c_str() + 7, config.token().size()) == 0 ? 200 : 403 /* FORBIDDEN */;
+//    return strncmp(config.token().data(), token.c_str() + 7, config.token().size()) == 0 ? 200 : 403 /* FORBIDDEN */;
+    return 0;
 }

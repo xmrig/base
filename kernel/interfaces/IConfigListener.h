@@ -20,6 +20,7 @@
 #define XMRIG_ICONFIGLISTENER_H
 
 
+#include "3rdparty/rapidjson/fwd.h"
 #include "base/tools/Object.h"
 
 
@@ -37,7 +38,7 @@ public:
     IConfigListener()           = default;
     virtual ~IConfigListener()  = default;
 
-    virtual void onNewConfig(IConfig *config) = 0;
+    virtual void onConfig(IConfig *config, rapidjson::Document &doc)    = 0;
 };
 
 

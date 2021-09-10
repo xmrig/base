@@ -17,12 +17,17 @@
  */
 
 #include "base/io/Console.h"
-#include "base/kernel/interfaces/IConsoleListener.h"
+#include "base/io/log/Log.h"
+#include "base/io/Signals.h"
+#include "base/kernel/Events.h"
+#include "base/kernel/events/ConsoleEvent.h"
+#include "base/kernel/private/Title.h"
+#include "base/kernel/Process.h"
+#include "base/tools/Cvt.h"
 #include "base/tools/Handle.h"
 
 
-xmrig::Console::Console(IConsoleListener *listener)
-    : m_listener(listener)
+xmrig::Console::Console()
 {
     if (!isSupported()) {
         return;
@@ -49,6 +54,25 @@ xmrig::Console::~Console()
 }
 
 
+#ifdef XMRIG_OS_WIN
+void xmrig::Console::setTitle(const Title &title)
+{
+    constexpr size_t kMaxTitleLength = 8192;
+
+    if (!title.isEnabled()) {
+        wchar_t title_w[kMaxTitleLength]{};
+
+        if (GetConsoleOriginalTitleW(title_w, kMaxTitleLength)) {
+            SetConsoleTitleW(title_w);
+        }
+    }
+    else {
+        SetConsoleTitleW(Cvt::toUtf16(title.value()).c_str());
+    }
+}
+#endif
+
+
 bool xmrig::Console::isSupported()
 {
     const uv_handle_type type = uv_guess_handle(0);
@@ -71,6 +95,14 @@ void xmrig::Console::onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *
     }
 
     if (nread == 1) {
-        static_cast<Console*>(stream->data)->m_listener->onConsoleCommand(buf->base[0]);
+        const char command = *buf->base;
+        if (*buf->base == 3) {
+            LOG_WARN("%s " YELLOW_BOLD("Ctrl+C ") YELLOW("received, exiting"), Signals::tag());
+
+            Process::exit(0);
+        }
+        else {
+            Process::events().send<ConsoleEvent>(command);
+        }
     }
 }

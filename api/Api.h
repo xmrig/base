@@ -24,8 +24,8 @@
 #include <cstdint>
 
 
-#include "base/kernel/interfaces/IBaseListener.h"
 #include "base/tools/String.h"
+#include "base/tools/Object.h"
 
 
 namespace xmrig {
@@ -39,13 +39,13 @@ class IApiRequest;
 class String;
 
 
-class Api : public IBaseListener
+class Api
 {
 public:
     XMRIG_DISABLE_COPY_MOVE_DEFAULT(Api)
 
     Api(Base *base);
-    ~Api() override;
+    ~Api();
 
     inline const char *id() const                   { return m_id; }
     inline const char *workerId() const             { return m_workerId; }
@@ -56,7 +56,7 @@ public:
     void stop();
 
 protected:
-    void onConfigChanged(Config *config, Config *previousConfig) override;
+//    void onConfigChanged(Config *config, Config *previousConfig) override;
 
 private:
     void exec(IApiRequest &request);

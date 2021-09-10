@@ -28,10 +28,6 @@
 namespace xmrig {
 
 
-class ILogBackend;
-class LogPrivate;
-
-
 class Log
 {
 public:
@@ -44,16 +40,21 @@ public:
         WARNING, // warning conditions
         NOTICE,  // normal but significant condition
         INFO,    // informational
+        V1,      // Verbose
+        V2,      // Verbose
+        V3,      // Verbose
+        V4,      // Verbose
+        V5,      // Verbose
         DEBUG,   // debug-level messages
     };
 
     constexpr static size_t kMaxBufferSize = 16384;
 
-    static void add(ILogBackend *backend);
     static void destroy();
     static void init();
     static void print(const char *fmt, ...);
     static void print(Level level, const char *fmt, ...);
+    static void setVerbose(uint32_t verbose);
 
     static inline bool isBackground()                   { return m_background; }
     static inline bool isColors()                       { return m_colors; }
@@ -61,12 +62,10 @@ public:
     static inline uint32_t verbose()                    { return m_verbose; }
     static inline void setBackground(bool background)   { m_background = background; }
     static inline void setColors(bool colors)           { m_colors = colors; }
-    static inline void setVerbose(uint32_t verbose)     { m_verbose = verbose; }
 
 private:
     static bool m_background;
     static bool m_colors;
-    static LogPrivate *d;
     static uint32_t m_verbose;
 };
 
@@ -143,12 +142,12 @@ private:
 #define LOG_WARN(x, ...)    xmrig::Log::print(xmrig::Log::WARNING, x, ##__VA_ARGS__)
 #define LOG_NOTICE(x, ...)  xmrig::Log::print(xmrig::Log::NOTICE,  x, ##__VA_ARGS__)
 #define LOG_INFO(x, ...)    xmrig::Log::print(xmrig::Log::INFO,    x, ##__VA_ARGS__)
-#define LOG_VERBOSE(x, ...) if (xmrig::Log::verbose() > 0) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
-#define LOG_V1(x, ...)      if (xmrig::Log::verbose() > 0) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
-#define LOG_V2(x, ...)      if (xmrig::Log::verbose() > 1) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
-#define LOG_V3(x, ...)      if (xmrig::Log::verbose() > 2) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
-#define LOG_V4(x, ...)      if (xmrig::Log::verbose() > 3) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
-#define LOG_V5(x, ...)      if (xmrig::Log::verbose() > 4) { xmrig::Log::print(xmrig::Log::INFO, x, ##__VA_ARGS__); }
+#define LOG_VERBOSE(x, ...) if (xmrig::Log::verbose() > 0) { xmrig::Log::print(xmrig::Log::V1, x, ##__VA_ARGS__); }
+#define LOG_V1(x, ...)      if (xmrig::Log::verbose() > 0) { xmrig::Log::print(xmrig::Log::V1, x, ##__VA_ARGS__); }
+#define LOG_V2(x, ...)      if (xmrig::Log::verbose() > 1) { xmrig::Log::print(xmrig::Log::V2, x, ##__VA_ARGS__); }
+#define LOG_V3(x, ...)      if (xmrig::Log::verbose() > 2) { xmrig::Log::print(xmrig::Log::V3, x, ##__VA_ARGS__); }
+#define LOG_V4(x, ...)      if (xmrig::Log::verbose() > 3) { xmrig::Log::print(xmrig::Log::V4, x, ##__VA_ARGS__); }
+#define LOG_V5(x, ...)      if (xmrig::Log::verbose() > 4) { xmrig::Log::print(xmrig::Log::V5, x, ##__VA_ARGS__); }
 
 #ifdef APP_DEBUG
 #   define LOG_DEBUG(x, ...) xmrig::Log::print(xmrig::Log::DEBUG, x, ##__VA_ARGS__)
@@ -165,7 +164,7 @@ private:
 #endif
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_LOG_H */
+#endif // XMRIG_LOG_H

@@ -1,5 +1,5 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,32 +16,33 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_ISIGNALLISTENER_H
-#define XMRIG_ISIGNALLISTENER_H
+#ifndef XMRIG_CONSOLESERVICE_H
+#define XMRIG_CONSOLESERVICE_H
 
 
-#include "base/tools/Object.h"
+#include "base/kernel/Service.h"
 
 
 namespace xmrig {
 
 
-class String;
-
-
-class ISignalListener
+class ConsoleService : public Service
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE(ISignalListener)
+    XMRIG_DISABLE_COPY_MOVE(ConsoleService)
 
-    ISignalListener()           = default;
-    virtual ~ISignalListener()  = default;
+    ConsoleService();
+    ~ConsoleService() override = default;
 
-    virtual void onSignal(int signum) = 0;
+protected:
+    void onEvent(uint32_t type, IEvent *event) override;
+
+private:
+    XMRIG_DECL_PRIVATE()
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif // XMRIG_ISIGNALLISTENER_H
+#endif // XMRIG_CONSOLESERVICE_H

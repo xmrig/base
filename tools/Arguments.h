@@ -66,6 +66,7 @@ public:
 
     const String &value(const char *key) const;
     const String &value(size_t i) const;
+    size_t pos(const char *key) const;
     std::vector<String> values(const char *key) const;
     void forEach(const Callback &callback) const;
 

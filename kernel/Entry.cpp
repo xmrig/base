@@ -116,8 +116,20 @@ xmrig::Entry::Entry(const Usage &usage)
         std::cout << "  -h, --help                    print this help and exit\n";
         std::cout << "  -V, --version                 print " APP_ID " version and exit\n";
         std::cout << "      --versions                print versions and exit\n";
-        std::cout << "  -d, --data-dir=<PATH>         specify an alternative working directory\n";
+        std::cout << "  -d, --data-dir=<PATH>         alternative working directory\n";
+        std::cout << "  -c, --config=<FILE>           load a JSON-format configuration file\n";
         std::cout << "  -B, --background              run " APP_ID " in the background\n";
+        std::cout << "      --no-color                disable colored output\n";
+        std::cout << "      --verbose=[LEVEL]         verbose level (0-5)\n";
+        std::cout << "  -l, --log-file=<FILE>         log all output to a file\n";
+
+#       ifdef HAVE_SYSLOG_H
+        std::cout << "  -S, --syslog                  use system log for output messages\n";
+#       endif
+
+#       ifdef XMRIG_OS_WIN
+        std::cout << "      --title=[TITLE]           set custom console window title\n";
+#       endif
 
 #       ifdef XMRIG_FEATURE_HWLOC
         std::cout << "      --export-topology         export hwloc topology to a XML file and exit\n";

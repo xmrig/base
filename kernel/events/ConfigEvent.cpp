@@ -1,5 +1,5 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,42 +16,19 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "base/kernel/config/Title.h"
-#include "3rdparty/rapidjson/document.h"
-#include "base/io/Env.h"
-#include "version.h"
+#include "base/kernel/events/ConfigEvent.h"
+#include "base/io/log/Log.h"
 
 
-xmrig::Title::Title(const rapidjson::Value &value)
+#ifdef APP_DEBUG
+void xmrig::ConfigEvent::print() const
 {
-    if (value.IsBool()) {
-        m_enabled = value.GetBool();
-    }
-    else if (value.IsString()) {
-        m_value = value.GetString();
-    }
+    LOG_DEBUG("%s " MAGENTA_BOLD("CONFIG")
+              MAGENTA("<id=") CYAN("%u")
+              MAGENTA(", name=") "\"%s\""
+              MAGENTA(", path=") "\"%s\""
+              MAGENTA(">")
+              CYAN(" {%u}"),
+              tag(), id(), name().data(), path().data(), value().MemberCount());
 }
-
-
-rapidjson::Value xmrig::Title::toJSON() const
-{
-    if (isEnabled() && !m_value.isNull()) {
-        return m_value.toJSON();
-    }
-
-    return rapidjson::Value(m_enabled);
-}
-
-
-xmrig::String xmrig::Title::value() const
-{
-    if (!isEnabled()) {
-        return {};
-    }
-
-    if (m_value.isNull()) {
-        return APP_NAME " " APP_VERSION;
-    }
-
-    return Env::expand(m_value);
-}
+#endif

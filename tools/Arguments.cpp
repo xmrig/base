@@ -72,6 +72,22 @@ const xmrig::String &xmrig::Arguments::value(size_t i) const
 }
 
 
+size_t xmrig::Arguments::pos(const char *key) const
+{
+    if (size() < 2) {
+        return 0;
+    }
+
+    for (size_t i = size() - 1; i > 0; i--) {
+        if (at(i) == key) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+
 std::vector<xmrig::String> xmrig::Arguments::values(const char *key) const
 {
     const size_t n = count(key);

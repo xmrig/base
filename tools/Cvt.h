@@ -57,6 +57,11 @@ public:
     static rapidjson::Value toHex(const uint8_t *in, size_t size, rapidjson::Document &doc);
     static String toHex(const uint8_t *in, size_t size);
     static void randomBytes(void *buf, size_t size);
+
+#   ifdef XMRIG_OS_WIN
+    static std::string toUtf8(const wchar_t *str, int size = -1);
+    static std::wstring toUtf16(const char *str, int size = -1);
+#   endif
 };
 
 

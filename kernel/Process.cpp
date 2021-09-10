@@ -23,6 +23,8 @@
 
 #include "base/kernel/Process.h"
 #include "3rdparty/fmt/core.h"
+#include "base/kernel/Events.h"
+#include "base/kernel/events/ExitEvent.h"
 #include "base/kernel/Versions.h"
 #include "base/tools/Arguments.h"
 #include "base/tools/Chrono.h"
@@ -44,10 +46,10 @@
 namespace xmrig {
 
 
-class ProcessPrivate
+class Process::Private
 {
 public:
-    ProcessPrivate(int argc, char **argv) : arguments(argc, argv) {}
+    Private(int argc, char **argv) : arguments(argc, argv) {}
 
     void setDataDir(const char *path)
     {
@@ -67,12 +69,14 @@ public:
 
     Arguments arguments;
     const char *version = APP_VERSION;
+    Events events;
+    int exitCode        = 0;
     String dataDir;
     Versions versions;
 };
 
 
-ProcessPrivate *Process::d_ptr  = nullptr;
+Process::Private *Process::d  = nullptr;
 
 
 } // namespace xmrig
@@ -80,14 +84,14 @@ ProcessPrivate *Process::d_ptr  = nullptr;
 
 xmrig::Process::Process(int argc, char **argv)
 {
-    d_ptr = new ProcessPrivate(argc, argv);
+    d = new Private(argc, argv);
 
     srand(static_cast<unsigned int>(Chrono::currentMSecsSinceEpoch() ^ reinterpret_cast<uintptr_t>(this)));
 
-    d_ptr->setDataDir(arguments().value("--data-dir", "-d"));
+    d_fn()->setDataDir(arguments().value("--data-dir", "-d"));
 
 #   ifdef XMRIG_SHARED_DATADIR
-    if (d_ptr->dataDir.isEmpty()) {
+    if (d_fn()->dataDir.isEmpty()) {
         auto dataDir = fmt::format("{}" XMRIG_DIR_SEPARATOR ".xmrig" XMRIG_DIR_SEPARATOR, locate(HomeLocation));
         MKDIR(dataDir);
 
@@ -95,38 +99,52 @@ xmrig::Process::Process(int argc, char **argv)
         MKDIR(dataDir);
 
         if (uv_chdir(dataDir.c_str()) == 0) {
-            d_ptr->dataDir = { dataDir.c_str(), dataDir.size() };
+            d_fn()->dataDir = { dataDir.c_str(), dataDir.size() };
         }
     }
 #   endif
 
-    if (d_ptr->dataDir.isEmpty()) {
-        d_ptr->dataDir = locate(ExeLocation);
+    if (d_fn()->dataDir.isEmpty()) {
+        d_fn()->dataDir = locate(ExeLocation);
     }
 }
 
 
 xmrig::Process::~Process()
 {
-    delete d_ptr;
+    delete d;
+
+    d = nullptr;
 }
 
 
 const xmrig::Arguments &xmrig::Process::arguments()
 {
-    return d_ptr->arguments;
+    return d_fn()->arguments;
 }
 
 
 const char *xmrig::Process::version()
 {
-    return d_ptr->version;
+    return d_fn()->version;
 }
 
 
 const xmrig::Versions &xmrig::Process::versions()
 {
-    return d_ptr->versions;
+    return d_fn()->versions;
+}
+
+
+xmrig::Events &xmrig::Process::events()
+{
+    return d_fn()->events;
+}
+
+
+int xmrig::Process::exitCode()
+{
+    return d_fn()->exitCode;
 }
 
 
@@ -160,8 +178,8 @@ xmrig::String xmrig::Process::locate(Location location)
         return { buf, size };
     }
 
-    if (location == Process::DataLocation && !d_ptr->dataDir.isEmpty()) {
-        return d_ptr->dataDir;
+    if (location == Process::DataLocation && !d_fn()->dataDir.isEmpty()) {
+        return d_fn()->dataDir;
     }
 
 #   if UV_VERSION_HEX >= 0x010600
@@ -196,4 +214,22 @@ xmrig::String xmrig::Process::locate(Location location)
     }
 
     return location != ExeLocation ? locate(ExeLocation) : String();
+}
+
+
+void xmrig::Process::exit(int code)
+{
+    if (code != -1) {
+        d_fn()->exitCode = code;
+    }
+
+    events().post<ExitEvent>(exitCode());
+}
+
+
+xmrig::Process::Private *xmrig::Process::d_fn()
+{
+    assert(d);
+
+    return d;
 }

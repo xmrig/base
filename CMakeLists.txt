@@ -18,6 +18,7 @@ set(HEADERS
     io/Env.h
     io/json/Json.h
     io/json/JsonChain.h
+    io/json/JsonConfig.h
     io/json/JsonRequest.h
     io/log/backends/ConsoleLog.h
     io/log/backends/FileLog.h
@@ -26,13 +27,19 @@ set(HEADERS
     io/log/Tags.h
     io/Signals.h
     io/Watcher.h
+    kernel/App.h
     kernel/base-version.h
-    kernel/Base.h
-    kernel/config/BaseConfig.h
-    kernel/config/BaseTransform.h
-    kernel/config/Title.h
+    kernel/Config.h
     kernel/constants.h
     kernel/Entry.h
+    kernel/Events.h
+    kernel/events/ConfigEvent.h
+    kernel/events/ConsoleEvent.h
+    kernel/events/Event.h
+    kernel/events/ExitEvent.h
+    kernel/events/LogEvent.h
+    kernel/events/SaveEvent.h
+    kernel/events/SignalEvent.h
     kernel/interfaces/IAsyncListener.h
     kernel/interfaces/IBaseListener.h
     kernel/interfaces/IClient.h
@@ -42,11 +49,12 @@ set(HEADERS
     kernel/interfaces/IConsoleListener.h
     kernel/interfaces/IDnsBackend.h
     kernel/interfaces/IDnsListener.h
+    kernel/interfaces/IEvent.h
+    kernel/interfaces/IEventListener.h
     kernel/interfaces/IHttpListener.h
     kernel/interfaces/IJsonReader.h
     kernel/interfaces/ILineListener.h
     kernel/interfaces/ILogBackend.h
-    kernel/interfaces/ISignalListener.h
     kernel/interfaces/IStrategy.h
     kernel/interfaces/IStrategyListener.h
     kernel/interfaces/ITcpServerListener.h
@@ -54,7 +62,13 @@ set(HEADERS
     kernel/interfaces/IWatcherListener.h
     kernel/OS.h
     kernel/Platform.h
+    kernel/private/LogConfig.h
     kernel/Process.h
+    kernel/Service.h
+    kernel/services/ConfigService.h
+    kernel/services/ConsoleService.h
+    kernel/services/LogService.h
+    kernel/services/SignalService.h
     kernel/Versions.h
     net/dns/Dns.h
     net/dns/DnsConfig.h
@@ -103,6 +117,7 @@ set(SOURCES
     io/Env.cpp
     io/json/Json.cpp
     io/json/JsonChain.cpp
+    io/json/JsonConfig.cpp
     io/json/JsonRequest.cpp
     io/log/backends/ConsoleLog.cpp
     io/log/backends/FileLog.cpp
@@ -111,14 +126,20 @@ set(SOURCES
     io/log/Tags.cpp
     io/Signals.cpp
     io/Watcher.cpp
-    kernel/Base.cpp
-    kernel/config/BaseConfig.cpp
-    kernel/config/BaseTransform.cpp
-    kernel/config/Title.cpp
+    kernel/App.cpp
+    kernel/Config.cpp
+    kernel/private/Title.cpp
     kernel/Entry.cpp
+    kernel/Events.cpp
+    kernel/events/SaveEvent.cpp
     kernel/OS.cpp
     kernel/Platform.cpp
+    kernel/private/LogConfig.cpp
     kernel/Process.cpp
+    kernel/services/ConfigService.cpp
+    kernel/services/ConsoleService.cpp
+    kernel/services/LogService.cpp
+    kernel/services/SignalService.cpp
     kernel/Versions.cpp
     net/dns/Dns.cpp
     net/dns/DnsConfig.cpp
@@ -145,12 +166,27 @@ set(SOURCES
     tools/Timer.cpp
     )
 
+if (WITH_DEBUG_LOG)
+    list(APPEND SOURCES
+        kernel/events/ConfigEvent.cpp
+        kernel/events/ConsoleEvent.cpp
+        kernel/events/Event.cpp
+        kernel/events/ExitEvent.cpp
+        kernel/events/SignalEvent.cpp
+        )
+endif()
+
 if (XMRIG_OS_WIN)
+    list(APPEND HEADERS
+        kernel/private/Title.h
+        )
+
     list(APPEND SOURCES
         io/json/Json_win.cpp
         kernel/Entry_win.cpp
         kernel/Platform_win.cpp
         kernel/Process_win.cpp
+        kernel/private/Title.cpp
         )
 
     list(APPEND LIBS ws2_32 psapi iphlpapi userenv)

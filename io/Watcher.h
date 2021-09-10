@@ -24,6 +24,9 @@
 #include "base/tools/String.h"
 
 
+#include <memory>
+
+
 typedef struct uv_fs_event_s uv_fs_event_t;
 
 
@@ -41,21 +44,22 @@ public:
     ~Watcher() override;
 
 protected:
-    inline void onTimer(const Timer *) override { reload(); }
+    void onTimer(const Timer *timer) override;
 
 private:
     constexpr static int kDelay = 500;
 
     static void onFsEvent(uv_fs_event_t *handle, const char *filename, int events, int status);
 
-    void queueUpdate();
     void reload();
     void start();
+    void startTimer();
+    void stop();
 
+    const String m_path;
     IWatcherListener *m_listener;
-    String m_path;
-    Timer *m_timer;
-    uv_fs_event_t *m_fsEvent;
+    std::shared_ptr<Timer> m_timer;
+    uv_fs_event_t *m_event  = nullptr;
 };
 
 

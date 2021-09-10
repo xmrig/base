@@ -17,6 +17,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <syslog.h>
 
 
@@ -42,5 +43,5 @@ void xmrig::SysLog::print(uint64_t, int level, const char *line, size_t offset, 
         return;
     }
 
-    syslog(level == -1 ? LOG_INFO : level, "%s", line + offset);
+    syslog(level == -1 ? LOG_INFO : std::min(level, LOG_DEBUG), "%s", line + offset);
 }

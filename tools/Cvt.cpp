@@ -17,6 +17,10 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef XMRIG_OS_WIN
+#   include <windows.h>
+#endif
+
 #include "base/tools/Cvt.h"
 #include "3rdparty/rapidjson/document.h"
 
@@ -294,3 +298,32 @@ void xmrig::Cvt::randomBytes(void *buf, size_t size)
     randombytes_buf(buf, size);
 #   endif
 }
+
+
+#ifdef XMRIG_OS_WIN
+std::string xmrig::Cvt::toUtf8(const wchar_t *str, int size)
+{
+    std::string ret;
+    const int len = WideCharToMultiByte(CP_UTF8, 0, str, size, nullptr, 0, nullptr, nullptr);
+    if (len > 0) {
+        ret.resize(static_cast<size_t>(len));
+        WideCharToMultiByte(CP_UTF8, 0, str, size, &ret[0], len, nullptr, nullptr);
+    }
+
+    return ret;
+}
+
+
+std::wstring xmrig::Cvt::toUtf16(const char *str, int size)
+{
+    std::wstring ret;
+
+    const int len = MultiByteToWideChar(CP_UTF8, 0, str, size, nullptr, 0);
+    if (len > 0) {
+        ret.resize(static_cast<size_t>(len));
+        MultiByteToWideChar(CP_UTF8, 0, str, size, &ret[0], len);
+    }
+
+    return ret;
+}
+#endif

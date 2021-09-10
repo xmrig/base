@@ -18,12 +18,20 @@
 #option(WITH_SECURE_JIT      "Enable secure access to JIT memory" OFF)
 #option(BUILD_STATIC         "Build static binary" OFF)
 #option(HWLOC_DEBUG          "Enable hwloc debug helpers and log" OFF)
+#option(WITH_DEPRECATED      "Enable deprecated config format support" ON)
 
 add_definitions(-D__STDC_FORMAT_MACROS -DUNICODE -D_FILE_OFFSET_BITS=64 -DXMRIG_JSON_SINGLE_LINE_ARRAY)
 
 if (WITH_DEBUG_LOG)
     add_definitions(-DAPP_DEBUG)
 endif()
+
+if (WITH_DEPRECATED)
+    add_definitions(-DXMRIG_DEPRECATED)
+endif()
+
+message(STATUS "WITH_DEBUG_LOG  \t= ${WITH_DEBUG_LOG}")
+message(STATUS "WITH_DEPRECATED \t= ${WITH_DEPRECATED}")
 
 include(CheckIncludeFile)
 include(git)

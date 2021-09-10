@@ -30,10 +30,8 @@ namespace xmrig {
 class Tags
 {
 public:
-    static const char *config();
     static const char *network();
     static const char *origin();
-    static const char *signal();
 
 #   ifdef XMRIG_MINER_PROJECT
     static const char *miner();

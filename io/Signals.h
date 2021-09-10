@@ -24,7 +24,6 @@
 
 
 #include <csignal>
-#include <cstddef>
 
 
 using uv_signal_t = struct uv_signal_s;
@@ -33,13 +32,10 @@ using uv_signal_t = struct uv_signal_s;
 namespace xmrig {
 
 
-class ISignalListener;
-
-
 class Signals
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE_DEFAULT(Signals)
+    XMRIG_DISABLE_COPY_MOVE(Signals)
 
 #   ifdef SIGUSR1
     constexpr static const size_t kSignalsCount = 4;
@@ -47,20 +43,21 @@ public:
     constexpr static const size_t kSignalsCount = 3;
 #   endif
 
-    Signals(ISignalListener *listener);
+    Signals();
     ~Signals();
+
+    static const char *tag();
 
 private:
     void close(int signum);
 
     static void onSignal(uv_signal_t *handle, int signum);
 
-    ISignalListener *m_listener;
     uv_signal_t *m_signals[kSignalsCount]{};
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_SIGNALS_H */
+#endif // XMRIG_SIGNALS_H

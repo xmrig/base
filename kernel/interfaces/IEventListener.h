@@ -16,57 +16,32 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_BASE_H
-#define XMRIG_BASE_H
+#ifndef XMRIG_IEVENTLISTENER_H
+#define XMRIG_IEVENTLISTENER_H
 
 
-#include "3rdparty/rapidjson/fwd.h"
-#include "base/api/interfaces/IApiListener.h"
-#include "base/kernel/interfaces/IConfigListener.h"
-#include "base/kernel/interfaces/IWatcherListener.h"
 #include "base/tools/Object.h"
 
 
 namespace xmrig {
 
 
-class Api;
-class BasePrivate;
-class Config;
-class IBaseListener;
+class IEvent;
 
 
-class Base : public IWatcherListener, public IApiListener
+class IEventListener
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE(Base)
+    XMRIG_DISABLE_COPY_MOVE(IEventListener)
 
-    Base();
-    ~Base() override;
+    IEventListener()            = default;
+    virtual ~IEventListener()   = default;
 
-    virtual bool isReady() const;
-    virtual int init();
-    virtual void start();
-    virtual void stop();
-
-    Api *api() const;
-    bool reload(const rapidjson::Value &json);
-    Config *config() const;
-    void addListener(IBaseListener *listener);
-
-protected:
-    void onFileChanged(const String &fileName) override;
-
-#   ifdef XMRIG_FEATURE_API
-    void onRequest(IApiRequest &request) override;
-#   endif
-
-private:
-    BasePrivate *d_ptr;
+    virtual void onEvent(uint32_t type, IEvent *event)  = 0;
 };
 
 
 } /* namespace xmrig */
 
 
-#endif /* XMRIG_BASE_H */
+#endif // XMRIG_IEVENTLISTENER_H

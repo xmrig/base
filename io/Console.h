@@ -38,16 +38,20 @@ using ssize_t = intptr_t;
 namespace xmrig {
 
 
-class IConsoleListener;
+class Title;
 
 
 class Console
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE_DEFAULT(Console)
+    XMRIG_DISABLE_COPY_MOVE(Console)
 
-    Console(IConsoleListener *listener);
+    Console();
     ~Console();
+
+#   ifdef XMRIG_OS_WIN
+    static void setTitle(const Title &title);
+#   endif
 
 private:
     static bool isSupported();
@@ -56,7 +60,6 @@ private:
     static void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
 
     char m_buf[1] = { 0 };
-    IConsoleListener *m_listener;
     uv_tty_t *m_tty = nullptr;
 };
 

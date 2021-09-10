@@ -21,14 +21,6 @@
 #include "base/io/log/Log.h"
 
 
-const char *xmrig::Tags::config()
-{
-    static const char *tag = CYAN_BG_BOLD(WHITE_BOLD_S " config  ");
-
-    return tag;
-}
-
-
 const char *xmrig::Tags::network()
 {
     static const char *tag = BLUE_BG_BOLD(WHITE_BOLD_S " net     ");
@@ -40,14 +32,6 @@ const char *xmrig::Tags::network()
 const char* xmrig::Tags::origin()
 {
     static const char* tag = YELLOW_BG_BOLD(WHITE_BOLD_S " origin  ");
-
-    return tag;
-}
-
-
-const char *xmrig::Tags::signal()
-{
-    static const char *tag = YELLOW_BG_BOLD(WHITE_BOLD_S " signal  ");
 
     return tag;
 }

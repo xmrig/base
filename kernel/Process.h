@@ -35,7 +35,7 @@ namespace xmrig {
 
 
 class Arguments;
-class ProcessPrivate;
+class Events;
 class Versions;
 
 
@@ -59,13 +59,20 @@ public:
     static const Arguments &arguments();
     static const char *version();
     static const Versions &versions();
+    static Events &events();
+    static int exitCode();
     static int pid();
     static int ppid();
     static String locate(Location location, const char *fileName);
     static String locate(Location location);
+    static void exit(int code = -1);
 
 private:
-    static ProcessPrivate *d_ptr;
+    class Private;
+
+    static Private *d_fn();
+
+    static Private *d;
 };
 
 
