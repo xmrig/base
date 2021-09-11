@@ -20,7 +20,7 @@
 #include "base/net/http/HttpClient.h"
 #include "3rdparty/llhttp/llhttp.h"
 #include "base/io/log/Log.h"
-#include "base/kernel/Platform.h"
+#include "base/kernel/Process.h"
 #include "base/net/dns/Dns.h"
 #include "base/net/dns/DnsRecords.h"
 #include "base/net/tools/NetBuffer.h"
@@ -94,7 +94,7 @@ void xmrig::HttpClient::handshake()
 {
     headers.insert({ "Host",       host() });
     headers.insert({ "Connection", "close" });
-    headers.insert({ "User-Agent", Platform::userAgent().data() });
+    headers.insert({ "User-Agent", Process::userAgent().data() });
 
     if (!body.empty()) {
         headers.insert({ "Content-Length", std::to_string(body.size()) });

@@ -20,7 +20,6 @@
 #include "3rdparty/rapidjson/document.h"
 #include "base/kernel/interfaces/IClient.h"
 #include "base/kernel/interfaces/IStrategyListener.h"
-#include "base/kernel/Platform.h"
 #include "base/net/stratum/Pool.h"
 
 

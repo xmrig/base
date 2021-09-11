@@ -41,7 +41,6 @@ set(HEADERS
     kernel/events/SaveEvent.h
     kernel/events/SignalEvent.h
     kernel/interfaces/IAsyncListener.h
-    kernel/interfaces/IBaseListener.h
     kernel/interfaces/IClient.h
     kernel/interfaces/IClientListener.h
     kernel/interfaces/IConfig.h
@@ -61,7 +60,6 @@ set(HEADERS
     kernel/interfaces/ITimerListener.h
     kernel/interfaces/IWatcherListener.h
     kernel/OS.h
-    kernel/Platform.h
     kernel/private/LogConfig.h
     kernel/Process.h
     kernel/Service.h
@@ -133,7 +131,6 @@ set(SOURCES
     kernel/Events.cpp
     kernel/events/SaveEvent.cpp
     kernel/OS.cpp
-    kernel/Platform.cpp
     kernel/private/LogConfig.cpp
     kernel/Process.cpp
     kernel/services/ConfigService.cpp
@@ -184,7 +181,7 @@ if (XMRIG_OS_WIN)
     list(APPEND SOURCES
         io/json/Json_win.cpp
         kernel/Entry_win.cpp
-        kernel/Platform_win.cpp
+        kernel/OS_win.cpp
         kernel/Process_win.cpp
         kernel/private/Title.cpp
         )
@@ -194,7 +191,7 @@ elseif (XMRIG_OS_APPLE)
     list(APPEND SOURCES
         io/json/Json_unix.cpp
         kernel/Entry_unix.cpp
-        kernel/Platform_mac.cpp
+        kernel/OS_mac.cpp
         kernel/Process_unix.cpp
         )
 
@@ -205,7 +202,7 @@ else()
     list(APPEND SOURCES
         io/json/Json_unix.cpp
         kernel/Entry_unix.cpp
-        kernel/Platform_unix.cpp
+        kernel/OS_unix.cpp
         kernel/Process_unix.cpp
         )
 
@@ -356,7 +353,7 @@ if (WITH_BENCHMARK)
 endif()
 
 if (WITH_HWLOC)
-    list(APPEND SOURCES kernel/Platform_hwloc.cpp)
+    list(APPEND SOURCES kernel/OS_hwloc.cpp)
 endif()
 
 add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})

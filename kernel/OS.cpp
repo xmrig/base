@@ -20,6 +20,43 @@
 
 
 #include "base/kernel/OS.h"
+#include "3rdparty/fmt/core.h"
+#include "base/kernel/Process.h"
+#include "base/kernel/Versions.h"
+#include "version.h"
+
+
+namespace xmrig {
+
+
+#if (XMRIG_ARM == 8 || defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64))
+const char *OS::arch = "arm64";
+#elif (XMRIG_ARM == 7 || defined(__arm__) || defined(_M_ARM))
+const char *OS::arch = "arm";
+#elif (defined(__x86_64__) || defined(_M_AMD64))
+const char *OS::arch = "x86_64";
+#elif (defined(_X86_) || defined(_M_IX86))
+const char *OS::arch = "x86";
+#else
+static_assert (false, "Unsupported CPU or compiler");
+#endif
+
+
+} // namespace xmrig
+
+
+std::string xmrig::OS::userAgent()
+{
+    return fmt::format("{}/{} ({}; {}) uv/{} {}/{}",
+                       APP_NAME,
+                       APP_VERSION,
+                       name(),
+                       arch,
+                       Process::versions()[Versions::kUv],
+                       Versions::kCompiler,
+                       Process::versions()[Versions::kCompiler]
+            );
+}
 
 
 uint64_t xmrig::OS::freemem()

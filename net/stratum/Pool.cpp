@@ -28,7 +28,7 @@
 #include "3rdparty/rapidjson/document.h"
 #include "base/io/json/Json.h"
 #include "base/io/log/Log.h"
-#include "base/kernel/Platform.h"
+#include "base/kernel/Process.h"
 #include "base/net/stratum/Client.h"
 
 #ifdef XMRIG_ALGO_KAWPOW
@@ -220,12 +220,12 @@ xmrig::IClient *xmrig::Pool::createClient(int id, IClientListener *listener) con
     if (m_mode == MODE_POOL) {
 #       ifdef XMRIG_ALGO_KAWPOW
         if ((m_algorithm.family() == Algorithm::KAWPOW) || (m_coin == Coin::RAVEN)) {
-            client = new EthStratumClient(id, Platform::userAgent(), listener);
+            client = new EthStratumClient(id, Process::userAgent(), listener);
         }
         else
 #       endif
         {
-            client = new Client(id, Platform::userAgent(), listener);
+            client = new Client(id, Process::userAgent(), listener);
         }
     }
 #   ifdef XMRIG_FEATURE_HTTP
@@ -233,12 +233,12 @@ xmrig::IClient *xmrig::Pool::createClient(int id, IClientListener *listener) con
         client = new DaemonClient(id, listener);
     }
     else if (m_mode == MODE_SELF_SELECT) {
-        client = new SelfSelectClient(id, Platform::userAgent(), listener, m_submitToOrigin);
+        client = new SelfSelectClient(id, Process::userAgent(), listener, m_submitToOrigin);
     }
 #   endif
 #   ifdef XMRIG_ALGO_KAWPOW
     else if (m_mode == MODE_AUTO_ETH) {
-        client = new AutoClient(id, Platform::userAgent(), listener);
+        client = new AutoClient(id, Process::userAgent(), listener);
     }
 #   endif
 #   ifdef XMRIG_FEATURE_BENCHMARK

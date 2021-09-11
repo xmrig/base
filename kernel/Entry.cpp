@@ -61,6 +61,20 @@ static bool showVersions(int &/*rc*/)
 }
 
 
+static bool userAgent(int &/*rc*/)
+{
+    Process::setUserAgent(Process::arguments().value("--user-agent"));
+
+    if (Process::arguments().contains("--print-user-agent")) {
+        std::cout << Process::userAgent() << std::endl;
+
+        return true;
+    }
+
+    return false;
+}
+
+
 #ifdef XMRIG_FEATURE_HWLOC
 static bool exportTopology(int &rc)
 {
@@ -100,6 +114,7 @@ xmrig::Entry::Entry(const Usage &usage)
 {
     add(showVersion);
     add(showVersions);
+    add(userAgent);
 
 #   ifdef XMRIG_FEATURE_HWLOC
     add(exportTopology);
@@ -130,6 +145,9 @@ xmrig::Entry::Entry(const Usage &usage)
 #       ifdef XMRIG_OS_WIN
         std::cout << "      --title=[TITLE]           set custom console window title\n";
 #       endif
+
+        std::cout << "      --user-agent=<UA>         set custom user agent string\n";
+        std::cout << "      --print-user-agent        print current user agent and exit\n";
 
 #       ifdef XMRIG_FEATURE_HWLOC
         std::cout << "      --export-topology         export hwloc topology to a XML file and exit\n";

@@ -16,7 +16,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "base/kernel/Platform.h"
+#include "base/kernel/OS.h"
 #include "backend/cpu/platform/HwlocCpuInfo.h"
 #include "backend/cpu/Cpu.h"
 
@@ -26,7 +26,7 @@
 
 
 #ifndef XMRIG_OS_APPLE
-bool xmrig::Platform::setThreadAffinity(uint64_t cpu_id)
+bool xmrig::OS::setThreadAffinity(uint64_t cpu_id)
 {
     auto cpu       = static_cast<HwlocCpuInfo *>(Cpu::info());
     hwloc_obj_t pu = hwloc_get_pu_obj_by_os_index(cpu->topology(), static_cast<unsigned>(cpu_id));

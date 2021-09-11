@@ -25,10 +25,17 @@
 #include "3rdparty/fmt/core.h"
 #include "base/kernel/Events.h"
 #include "base/kernel/events/ExitEvent.h"
+#include "base/kernel/OS.h"
 #include "base/kernel/Versions.h"
 #include "base/tools/Arguments.h"
 #include "base/tools/Chrono.h"
 #include "version.h"
+
+
+#ifdef XMRIG_FEATURE_TLS
+#   include <openssl/ssl.h>
+#   include <openssl/err.h>
+#endif
 
 
 #ifdef XMRIG_OS_WIN
@@ -49,7 +56,17 @@ namespace xmrig {
 class Process::Private
 {
 public:
-    Private(int argc, char **argv) : arguments(argc, argv) {}
+    Private(int argc, char **argv) : arguments(argc, argv)
+    {
+#       ifdef XMRIG_FEATURE_TLS
+        SSL_library_init();
+        SSL_load_error_strings();
+        ERR_load_BIO_strings();
+        ERR_load_crypto_strings();
+        SSL_load_error_strings();
+        OpenSSL_add_all_digests();
+#       endif
+    }
 
     void setDataDir(const char *path)
     {
@@ -72,6 +89,7 @@ public:
     Events events;
     int exitCode        = 0;
     String dataDir;
+    String userAgent;
     Versions versions;
 };
 
@@ -127,6 +145,16 @@ const xmrig::Arguments &xmrig::Process::arguments()
 const char *xmrig::Process::version()
 {
     return d_fn()->version;
+}
+
+
+const xmrig::String &xmrig::Process::userAgent()
+{
+    if (d_fn()->userAgent.isEmpty()) {
+        d_fn()->userAgent = OS::userAgent().c_str();
+    }
+
+    return d_fn()->userAgent;
 }
 
 
@@ -224,6 +252,12 @@ void xmrig::Process::exit(int code)
     }
 
     events().post<ExitEvent>(exitCode());
+}
+
+
+void xmrig::Process::setUserAgent(const String &userAgent)
+{
+    d_fn()->userAgent = userAgent;
 }
 
 

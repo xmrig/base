@@ -20,6 +20,9 @@
 #define XMRIG_OS_H
 
 
+#include <string>
+
+
 #include <cstdint>
 
 
@@ -29,8 +32,20 @@ namespace xmrig {
 class OS
 {
 public:
+    static const char *arch;
+
+    static inline bool isUserActive(uint64_t ms)            { return idleTime() < ms; }
+    static inline bool trySetThreadAffinity(int64_t cpu_id) { return cpu_id >= 0 && setThreadAffinity(static_cast<uint64_t>(cpu_id)); }
+
+    static bool isOnBatteryPower();
+    static bool setThreadAffinity(uint64_t cpu_id);
+    static std::string name();
+    static std::string userAgent();
     static uint64_t freemem();
+    static uint64_t idleTime();
     static uint64_t totalmem();
+    static void setProcessPriority(int priority);
+    static void setThreadPriority(int priority);
 };
 
 

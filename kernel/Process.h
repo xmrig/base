@@ -20,8 +20,8 @@
 #define XMRIG_PROCESS_H
 
 
-#include "base/tools/String.h"
 #include "base/tools/Object.h"
+#include "base/tools/String.h"
 
 
 #ifdef WIN32
@@ -58,6 +58,7 @@ public:
 
     static const Arguments &arguments();
     static const char *version();
+    static const String &userAgent();
     static const Versions &versions();
     static Events &events();
     static int exitCode();
@@ -66,6 +67,7 @@ public:
     static String locate(Location location, const char *fileName);
     static String locate(Location location);
     static void exit(int code = -1);
+    static void setUserAgent(const String &userAgent);
 
 private:
     class Private;
