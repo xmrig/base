@@ -40,6 +40,7 @@ public:
     inline bool isColors() const                            { return m_colors; }
     inline bool isSyslog() const                            { return m_syslog; }
     inline const String &file() const                       { return m_file; }
+    inline uint32_t toggleVerbose()                         { m_verbose = (m_verbose + 1) % 6U; return m_verbose; }
     inline uint32_t verbose() const                         { return m_verbose; }
 
     inline bool operator!=(const LogConfig &other) const    { return !isEqual(other); }

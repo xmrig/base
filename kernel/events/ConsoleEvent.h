@@ -38,6 +38,7 @@ public:
 
 protected:
     uint32_t type() const override  { return CONSOLE; }
+    uint64_t data() const override  { return static_cast<uint64_t>(m_command); }
 
 #   ifdef APP_DEBUG
     void print() const override;

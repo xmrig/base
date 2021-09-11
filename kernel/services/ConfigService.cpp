@@ -20,12 +20,11 @@
 #include "base/io/json/JsonConfig.h"
 #include "base/kernel/Events.h"
 #include "base/kernel/events/ConfigEvent.h"
+#include "base/kernel/events/SaveEvent.h"
 #include "base/kernel/interfaces/IConfigListener.h"
 #include "base/kernel/Process.h"
 #include "base/tools/Arguments.h"
 #include "version.h"
-#include "base/kernel/events/ConsoleEvent.h" // FIXME
-#include "base/kernel/events/SaveEvent.h"
 
 
 namespace xmrig {
@@ -81,15 +80,11 @@ void xmrig::ConfigService::exec(int & /*rc*/)
 
 void xmrig::ConfigService::onEvent(uint32_t type, IEvent *event)
 {
-    if (type == IEvent::CONSOLE && static_cast<const ConsoleEvent *>(event)->command() == 's') { // FIXME
+    if (type == IEvent::CONSOLE && event->data() == 0x13) {
         Process::events().post<SaveEvent>(d->main);
     }
 
     if (type == IEvent::EXIT) {
         d->main->close();
     }
-
-//    if (event->type() == IEvent::CONFIG) {
-//        printf("ConfigService::onEvent<CONFIG>\n");
-//    }
 }

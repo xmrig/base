@@ -42,7 +42,12 @@ public:
     ~App();
 
     template<typename T, typename... Args>
-    inline void add(Args&&... args) { add(new T(std::forward<Args>(args)...)); }
+    inline T *add(Args&&... args) {
+        auto *service = new T(std::forward<Args>(args)...);
+        add(service);
+
+        return service;
+    }
 
     static const char *tag();
 

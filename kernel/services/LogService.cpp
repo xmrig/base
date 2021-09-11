@@ -25,6 +25,7 @@
 #include "base/kernel/events/SaveEvent.h"
 #include "base/kernel/private/LogConfig.h"
 #include "base/kernel/Process.h"
+#include "base/kernel/Config.h"
 
 
 #ifdef HAVE_SYSLOG_H
@@ -66,6 +67,13 @@ public:
 
         config = next;
         config.print();
+    }
+
+    void toggleVerbose()
+    {
+        Log::setVerbose(config.toggleVerbose());
+
+        LOG_NOTICE("%s " WHITE_BOLD("verbose: ") CYAN_BOLD("%u"), Config::tag(), Log::verbose());
     }
 
     LogConfig config;
@@ -110,5 +118,9 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
 
     if (type == IEvent::SAVE && event->data() == 0) {
         d->config.save(static_cast<SaveEvent *>(event)->doc());
+    }
+
+    if (type == IEvent::CONSOLE && (event->data() == 'v' || event->data() == 'V')) {
+        d->toggleVerbose();
     }
 }
