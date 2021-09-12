@@ -75,6 +75,8 @@ xmrig::App::App() :
     if (!Log::isBackground()) {
         add<ConsoleService>();
     }
+
+    add<ConfigService>();
 }
 
 
@@ -94,8 +96,6 @@ const char *xmrig::App::tag()
 
 int xmrig::App::exec()
 {
-    add<ConfigService>();
-
     int rc = 0;
 
     try {

@@ -77,7 +77,7 @@ void xmrig::ConsoleService::onEvent(uint32_t type, IEvent *event)
     }
 
 #   ifdef XMRIG_OS_WIN
-    if (type == IEvent::CONFIG && event->data() == 0) {
+    if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
         d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->title });
     }
 

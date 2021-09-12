@@ -96,6 +96,12 @@ void xmrig::JsonConfig::close()
 }
 
 
+bool xmrig::JsonConfig::isValid() const
+{
+    return !m_path.isNull();
+}
+
+
 bool xmrig::JsonConfig::save(rapidjson::Document &doc)
 {
     m_watcher.reset();

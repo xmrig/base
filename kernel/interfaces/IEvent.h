@@ -44,8 +44,11 @@ public:
     IEvent()            = default;
     virtual ~IEvent()   = default;
 
+    virtual bool isRejected() const = 0;
+    virtual int32_t route() const   = 0;
     virtual uint32_t type() const   = 0;
     virtual uint64_t data() const   = 0;
+    virtual void reject()           = 0;
 
 #   ifdef APP_DEBUG
     virtual void print() const      = 0;

@@ -60,21 +60,17 @@ xmrig::ConfigService::ConfigService() :
         return;
     }
 
-    d->open({
+    if (d->open({
         Process::locate(Process::DataLocation, "config.json"),
 #       ifndef XMRIG_OS_WIN
         Process::locate(Process::HomeLocation,  "." APP_ID ".json"),
         Process::locate(Process::HomeLocation, ".config" XMRIG_DIR_SEPARATOR APP_ID ".json")
 #       endif
-    });
-}
-
-
-void xmrig::ConfigService::exec(int & /*rc*/)
-{
-    if (std::static_pointer_cast<IConfig>(d->main)->path().isNull()) {
-        throw std::runtime_error("no valid configuration found");
+    })) {
+        return;
     }
+
+    Process::events().post<ConfigEvent>(d->main);
 }
 
 

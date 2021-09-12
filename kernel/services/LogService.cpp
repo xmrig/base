@@ -112,7 +112,7 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return d->print(static_cast<const LogEvent *>(event));
     }
 
-    if (type == IEvent::CONFIG && event->data() == 0) {
+    if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
         d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
     }
 

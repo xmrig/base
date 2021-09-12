@@ -35,7 +35,6 @@ public:
     ~ConfigService() override = default;
 
 protected:
-    void exec(int &rc);
     void onEvent(uint32_t type, IEvent *event) override;
 
 private:

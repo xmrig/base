@@ -35,13 +35,19 @@ public:
     inline ~Event() override    = default;
 
 protected:
-    uint64_t data() const override  { return 0; }
+    inline bool isRejected() const override     { return m_rejected; }
+    inline int32_t route() const override       { return m_route; }
+    inline uint64_t data() const override       { return 0; }
+    inline void reject() override               { m_rejected = true; }
 
 #   ifdef APP_DEBUG
     static const char *tag();
 
     void print() const override {}
 #   endif
+
+    bool m_rejected = false;
+    int32_t m_route = -1;
 };
 
 

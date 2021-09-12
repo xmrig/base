@@ -39,17 +39,11 @@ public:
     IConfig()           = default;
     virtual ~IConfig()  = default;
 
+    virtual bool isValid() const                            = 0;
     virtual bool save(rapidjson::Document &doc)             = 0;
     virtual const String &name() const                      = 0;
     virtual const String &path() const                      = 0;
     virtual uint32_t id() const                             = 0;
-
-//    virtual bool isWatch() const                                       = 0;
-//    virtual bool read(const IJsonReader &reader, const char *fileName) = 0;
-//    virtual bool save()                                                = 0;
-//    virtual const String &fileName() const                             = 0;
-//    virtual void getJSON(rapidjson::Document &doc) const               = 0;
-//    virtual void setFileName(const char *fileName)                     = 0;
 };
 
 

@@ -50,6 +50,7 @@ public:
     void close();
 
 protected:
+    bool isValid() const override;
     bool save(rapidjson::Document &doc) override;
     void onFileChanged(const String &fileName) override;
 

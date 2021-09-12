@@ -42,9 +42,15 @@ public:
         m_reader = std::make_shared<JsonReader>(m_doc);
     }
 
+    inline ConfigEvent(const std::shared_ptr<IConfig> &config) :
+        m_doc(rapidjson::kObjectType),
+        m_config(config),
+        m_id(config->id())
+    {}
+
     inline ~ConfigEvent() override = default;
 
-    inline const IJsonReader *reader() const                { return m_reader.get(); }
+    inline const IJsonReader *reader() const                { assert(m_reader.get()); return m_reader.get(); }
     inline const rapidjson::Value &value() const            { return m_doc; }
     inline const std::shared_ptr<IConfig> &config() const   { return m_config; }
     inline const String &name() const                       { return m_config->name(); }
@@ -52,8 +58,9 @@ public:
     inline uint32_t id() const                              { return m_id; }
 
 protected:
-    uint32_t type() const override                          { return CONFIG; }
-    uint64_t data() const override                          { return m_id; }
+    inline bool isRejected() const override                 { return !m_config->isValid(); }
+    inline uint32_t type() const override                   { return CONFIG; }
+    inline uint64_t data() const override                   { return m_id; }
 
 #   ifdef APP_DEBUG
     void print() const override;
