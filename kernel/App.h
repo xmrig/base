@@ -53,6 +53,7 @@ public:
 
     int exec();
     void add(Service *service);
+    void remove(Service *service);
 
 private:
     XMRIG_DECL_PRIVATE()

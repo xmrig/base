@@ -44,6 +44,6 @@ xmrig::SignalService::SignalService() :
 void xmrig::SignalService::onEvent(uint32_t type, IEvent * /*event*/)
 {
     if (type == IEvent::EXIT) {
-        d->signals.reset();
+        return d->signals.reset();
     }
 }

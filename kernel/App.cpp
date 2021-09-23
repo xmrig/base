@@ -122,3 +122,14 @@ void xmrig::App::add(Service *service)
 
     Process::events().addListener(service);
 }
+
+
+void xmrig::App::remove(Service *service)
+{
+    auto it = std::find(d->services.begin(), d->services.end(), service);
+    if (it != d->services.end()) {
+        d->services.erase(it);
+    }
+
+    Process::events().removeListener(service);
+}

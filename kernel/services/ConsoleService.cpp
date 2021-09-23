@@ -73,16 +73,16 @@ xmrig::ConsoleService::ConsoleService() :
 void xmrig::ConsoleService::onEvent(uint32_t type, IEvent *event)
 {
     if (type == IEvent::EXIT) {
-        d->console.reset();
+        return d->console.reset();
     }
 
 #   ifdef XMRIG_OS_WIN
     if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
-        d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->title });
+        return d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->title });
     }
 
     if (type == IEvent::SAVE && event->data() == 0) {
-        d->title.save(static_cast<SaveEvent *>(event)->doc());
+        return d->title.save(static_cast<SaveEvent *>(event)->doc());
     }
 #   endif
 }

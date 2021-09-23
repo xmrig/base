@@ -38,7 +38,8 @@ public:
         SIGNAL,
         CONSOLE,
         CONFIG,
-        SAVE
+        SAVE,
+        IDLE
     };
 
     IEvent()            = default;

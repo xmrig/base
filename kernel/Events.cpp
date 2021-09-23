@@ -111,6 +111,7 @@ void xmrig::Events::send(IEventListener *listener, IEvent &event)
 void xmrig::Events::addListener(IEventListener *listener)
 {
     assert(listener);
+    std::lock_guard<std::mutex> lock(d->mutex);
 
     d->listeners.emplace_back(listener);
 }
@@ -130,6 +131,8 @@ void xmrig::Events::post(std::shared_ptr<IEvent> &&event)
 
 void xmrig::Events::removeListener(IEventListener *listener)
 {
+    std::lock_guard<std::mutex> lock(d->mutex);
+
     auto it = std::find(d->listeners.begin(), d->listeners.end(), listener);
     if (it != d->listeners.end()) {
         d->listeners.erase(it);

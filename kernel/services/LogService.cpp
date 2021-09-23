@@ -113,14 +113,14 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
     }
 
     if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
-        d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
+        return d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
     }
 
     if (type == IEvent::SAVE && event->data() == 0) {
-        d->config.save(static_cast<SaveEvent *>(event)->doc());
+        return d->config.save(static_cast<SaveEvent *>(event)->doc());
     }
 
     if (type == IEvent::CONSOLE && (event->data() == 'v' || event->data() == 'V')) {
-        d->toggleVerbose();
+        return d->toggleVerbose();
     }
 }

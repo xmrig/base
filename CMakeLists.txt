@@ -32,11 +32,13 @@ set(HEADERS
     kernel/Config.h
     kernel/constants.h
     kernel/Entry.h
+    kernel/EventListener.h
     kernel/Events.h
     kernel/events/ConfigEvent.h
     kernel/events/ConsoleEvent.h
     kernel/events/Event.h
     kernel/events/ExitEvent.h
+    kernel/events/IdleEvent.h
     kernel/events/LogEvent.h
     kernel/events/SaveEvent.h
     kernel/events/SignalEvent.h
@@ -128,6 +130,7 @@ set(SOURCES
     kernel/Config.cpp
     kernel/private/Title.cpp
     kernel/Entry.cpp
+    kernel/EventListener.cpp
     kernel/Events.cpp
     kernel/events/SaveEvent.cpp
     kernel/OS.cpp

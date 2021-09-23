@@ -16,42 +16,18 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_EVENT_H
-#define XMRIG_EVENT_H
+#include "base/kernel/EventListener.h"
+#include "base/kernel/Events.h"
+#include "base/kernel/Process.h"
 
 
-#include "base/kernel/interfaces/IEvent.h"
-
-
-namespace xmrig {
-
-
-class Event : public IEvent
+xmrig::EventListener::EventListener()
 {
-public:
-    XMRIG_DISABLE_COPY_MOVE(Event)
-
-    inline Event()              = default;
-    inline ~Event() override    = default;
-
-    inline bool isRejected() const override     { return m_rejected; }
-    inline int32_t route() const override       { return m_route; }
-    inline uint64_t data() const override       { return 0; }
-    inline void reject() override               { m_rejected = true; }
-
-protected:
-#   ifdef APP_DEBUG
-    static const char *tag();
-
-    void print() const override {}
-#   endif
-
-    bool m_rejected = false;
-    int32_t m_route = -1;
-};
+    Process::events().addListener(this);
+}
 
 
-} // namespace xmrig
-
-
-#endif // XMRIG_EVENT_H
+xmrig::EventListener::~EventListener()
+{
+    Process::events().removeListener(this);
+}

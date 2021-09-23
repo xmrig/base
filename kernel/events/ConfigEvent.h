@@ -50,6 +50,7 @@ public:
 
     inline ~ConfigEvent() override = default;
 
+    inline bool isRejected() const override                 { return !m_config->isValid(); }
     inline const IJsonReader *reader() const                { assert(m_reader.get()); return m_reader.get(); }
     inline const rapidjson::Value &value() const            { return m_doc; }
     inline const std::shared_ptr<IConfig> &config() const   { return m_config; }
@@ -58,7 +59,6 @@ public:
     inline uint32_t id() const                              { return m_id; }
 
 protected:
-    inline bool isRejected() const override                 { return !m_config->isValid(); }
     inline uint32_t type() const override                   { return CONFIG; }
     inline uint64_t data() const override                   { return m_id; }
 

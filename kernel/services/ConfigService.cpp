@@ -77,10 +77,10 @@ xmrig::ConfigService::ConfigService() :
 void xmrig::ConfigService::onEvent(uint32_t type, IEvent *event)
 {
     if (type == IEvent::CONSOLE && event->data() == 0x13) {
-        Process::events().post<SaveEvent>(d->main);
+        return Process::events().post<SaveEvent>(d->main);
     }
 
     if (type == IEvent::EXIT) {
-        d->main->close();
+        return d->main->close();
     }
 }
