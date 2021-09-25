@@ -46,7 +46,7 @@ public:
         title = next;
         title.print();
 
-        Console::setTitle(title);
+        console->setTitle(title);
     }
 #   endif
 };
@@ -64,7 +64,7 @@ xmrig::ConsoleService::ConsoleService() :
     d->apply(Process::arguments());
 
     if (d->title.isEnabled()) {
-        Console::setTitle(d->title);
+        d->console->setTitle(d->title);
     }
 #   endif
 }

@@ -27,8 +27,60 @@
 #include "base/tools/Handle.h"
 
 
-xmrig::Console::Console()
+namespace xmrig {
+
+
+class Console::Private
 {
+public:
+    XMRIG_DISABLE_COPY_MOVE(Private)
+
+    Private();
+    ~Private();
+
+#   ifdef XMRIG_OS_WIN
+    std::wstring title;
+#   endif
+
+private:
+    static bool isSupported();
+
+    static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
+    static void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
+
+    char m_buf[1] = { 0 };
+    uv_tty_t *m_tty = nullptr;
+};
+
+
+} // namespace xmrig
+
+
+xmrig::Console::Console() :
+    d(std::make_shared<Private>())
+{
+}
+
+
+#ifdef XMRIG_OS_WIN
+void xmrig::Console::setTitle(const Title &title) const
+{
+    SetConsoleTitleW(title.isEnabled() ? Cvt::toUtf16(title.value()).c_str() : d->title.c_str());
+}
+#endif
+
+
+xmrig::Console::Private::Private()
+{
+#   ifdef XMRIG_OS_WIN
+    {
+        constexpr size_t kMaxTitleLength = 8192;
+
+        wchar_t title_w[kMaxTitleLength]{};
+        title = { title_w, GetConsoleTitleW(title_w, kMaxTitleLength) };
+    }
+#   endif
+
     if (!isSupported()) {
         return;
     }
@@ -42,11 +94,11 @@ xmrig::Console::Console()
     }
 
     uv_tty_set_mode(m_tty, UV_TTY_MODE_RAW);
-    uv_read_start(reinterpret_cast<uv_stream_t*>(m_tty), Console::onAllocBuffer, Console::onRead);
+    uv_read_start(reinterpret_cast<uv_stream_t*>(m_tty), onAllocBuffer, onRead);
 }
 
 
-xmrig::Console::~Console()
+xmrig::Console::Private::~Private()
 {
     uv_tty_reset_mode();
 
@@ -54,41 +106,22 @@ xmrig::Console::~Console()
 }
 
 
-#ifdef XMRIG_OS_WIN
-void xmrig::Console::setTitle(const Title &title)
-{
-    constexpr size_t kMaxTitleLength = 8192;
-
-    if (!title.isEnabled()) {
-        wchar_t title_w[kMaxTitleLength]{};
-
-        if (GetConsoleOriginalTitleW(title_w, kMaxTitleLength)) {
-            SetConsoleTitleW(title_w);
-        }
-    }
-    else {
-        SetConsoleTitleW(Cvt::toUtf16(title.value()).c_str());
-    }
-}
-#endif
-
-
-bool xmrig::Console::isSupported()
+bool xmrig::Console::Private::isSupported()
 {
     const uv_handle_type type = uv_guess_handle(0);
     return type == UV_TTY || type == UV_NAMED_PIPE;
 }
 
 
-void xmrig::Console::onAllocBuffer(uv_handle_t *handle, size_t, uv_buf_t *buf)
+void xmrig::Console::Private::onAllocBuffer(uv_handle_t *handle, size_t, uv_buf_t *buf)
 {
-    auto console = static_cast<Console*>(handle->data);
+    auto console = static_cast<Private *>(handle->data);
     buf->len  = 1;
     buf->base = console->m_buf;
 }
 
 
-void xmrig::Console::onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
+void xmrig::Console::Private::onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
     if (nread < 0) {
         return uv_close(reinterpret_cast<uv_handle_t*>(stream), nullptr);
