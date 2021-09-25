@@ -35,7 +35,7 @@ namespace xmrig {
 
 
 static const constexpr char *kColors    = "colors";
-static const constexpr char *kLogFile   = "log_file";
+static const constexpr char *kLogFile   = "log-file";
 static const constexpr char *kVerbose   = "verbose";
 
 #ifdef HAVE_SYSLOG_H
@@ -71,12 +71,6 @@ xmrig::LogConfig::LogConfig(const IJsonReader &reader, const LogConfig &current)
 
 #   ifdef HAVE_SYSLOG_H
     m_syslog  = reader.getBool(kSyslog, current.m_syslog);
-#   endif
-
-#   ifdef XMRIG_DEPRECATED
-    if (m_file.isNull()) {
-        m_file = reader.getString("log-file", m_file);
-    }
 #   endif
 }
 
