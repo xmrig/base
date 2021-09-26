@@ -136,6 +136,7 @@ xmrig::Entry::Entry(const Usage &usage)
         std::cout << "  -B, --background              run " APP_ID " in the background\n";
         std::cout << "      --no-color                disable colored output\n";
         std::cout << "      --verbose=[LEVEL]         verbose level (0-5)\n";
+        std::cout << "      --print-time=<N>          print report every N seconds\n";
         std::cout << "  -l, --log-file=<FILE>         log all output to a file\n";
 
 #       ifdef HAVE_SYSLOG_H

@@ -1,5 +1,5 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,49 +16,41 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_IEVENT_H
-#define XMRIG_IEVENT_H
+#ifndef XMRIG_PRINTEVENT_H
+#define XMRIG_PRINTEVENT_H
 
 
-#include "base/tools/Object.h"
+#include "base/kernel/events/Event.h"
 
 
 namespace xmrig {
 
 
-class IEvent
+class PrintEvent : public Event
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE(IEvent)
+    XMRIG_DISABLE_COPY_MOVE_DEFAULT(PrintEvent)
 
-    enum Type : uint32_t {
-        NONE,
-        EXIT,
-        LOG,
-        SIGNAL,
-        CONSOLE,
-        CONFIG,
-        SAVE,
-        IDLE,
-        PRINT
-    };
+    inline PrintEvent(uint64_t now, uint64_t ticks) : m_now(now), m_ticks(ticks)    {}
+    inline ~PrintEvent() override = default;
 
-    IEvent()            = default;
-    virtual ~IEvent()   = default;
+    inline uint64_t now() const     { return m_now; }
+    inline uint64_t ticks() const   { return m_ticks; }
 
-    virtual bool isRejected() const = 0;
-    virtual int32_t route() const   = 0;
-    virtual uint32_t type() const   = 0;
-    virtual uint64_t data() const   = 0;
-    virtual void reject()           = 0;
+protected:
+    uint32_t type() const override  { return PRINT; }
 
 #   ifdef APP_DEBUG
-    virtual void print() const      = 0;
+    void print() const override;
 #   endif
+
+private:
+    const uint64_t m_now;
+    const uint64_t m_ticks;
 };
 
 
 } // namespace xmrig
 
 
-#endif // XMRIG_IEVENT_H
+#endif // XMRIG_PRINTEVENT_H

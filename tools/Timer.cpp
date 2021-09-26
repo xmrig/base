@@ -21,23 +21,10 @@
 #include "base/tools/Handle.h"
 
 
-xmrig::Timer::Timer(ITimerListener *listener) :
-    m_listener(listener)
-{
-    init();
-}
-
-
-xmrig::Timer::Timer(ITimerListener *listener, uint64_t timeout, uint64_t repeat) :
-    m_listener(listener)
-{
-    init();
-    start(timeout, repeat);
-}
-
-
 xmrig::Timer::~Timer()
 {
+    stop();
+
     Handle::close(m_timer);
 }
 

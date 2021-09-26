@@ -50,8 +50,6 @@ public:
 
     constexpr static size_t kMaxBufferSize = 16384;
 
-    static void destroy();
-    static void init();
     static void print(const char *fmt, ...);
     static void print(Level level, const char *fmt, ...);
     static void setVerbose(uint32_t verbose);

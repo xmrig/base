@@ -32,10 +32,11 @@
 
 
 #include "base/io/log/Log.h"
-#include "base/tools/Chrono.h"
-#include "base/kernel/events/LogEvent.h"
-#include "base/kernel/Process.h"
 #include "base/kernel/Events.h"
+#include "base/kernel/events/LogEvent.h"
+#include "base/kernel/private/LogConfig.h"
+#include "base/kernel/Process.h"
+#include "base/tools/Chrono.h"
 
 
 namespace xmrig {
@@ -187,5 +188,5 @@ void xmrig::Log::print(Level level, const char *fmt, ...)
 
 void xmrig::Log::setVerbose(uint32_t verbose)
 {
-    m_verbose = std::min(verbose, 5U);
+    m_verbose = std::min(verbose, static_cast<uint32_t>(LogConfig::kMaxVerbose));
 }

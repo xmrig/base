@@ -40,6 +40,7 @@ set(HEADERS
     kernel/events/ExitEvent.h
     kernel/events/IdleEvent.h
     kernel/events/LogEvent.h
+    kernel/events/PrintEvent.h
     kernel/events/SaveEvent.h
     kernel/events/SignalEvent.h
     kernel/interfaces/IAsyncListener.h
@@ -172,6 +173,7 @@ if (WITH_DEBUG_LOG)
         kernel/events/ConsoleEvent.cpp
         kernel/events/Event.cpp
         kernel/events/ExitEvent.cpp
+        kernel/events/PrintEvent.cpp
         kernel/events/SignalEvent.cpp
         )
 endif()

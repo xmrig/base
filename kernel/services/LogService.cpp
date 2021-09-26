@@ -20,12 +20,17 @@
 #include "base/io/log/backends/ConsoleLog.h"
 #include "base/io/log/backends/FileLog.h"
 #include "base/io/log/Log.h"
+#include "base/kernel/Config.h"
+#include "base/kernel/Events.h"
 #include "base/kernel/events/ConfigEvent.h"
 #include "base/kernel/events/LogEvent.h"
+#include "base/kernel/events/PrintEvent.h"
 #include "base/kernel/events/SaveEvent.h"
+#include "base/kernel/interfaces/ITimerListener.h"
 #include "base/kernel/private/LogConfig.h"
 #include "base/kernel/Process.h"
-#include "base/kernel/Config.h"
+#include "base/tools/Chrono.h"
+#include "base/tools/Timer.h"
 
 
 #ifdef HAVE_SYSLOG_H
@@ -36,59 +41,26 @@
 namespace xmrig {
 
 
-class LogService::Private
+class LogService::Private : public ITimerListener
 {
 public:
-    void print(const LogEvent *event) const
-    {
-        print(console, event);
-        print(file, event);
-        print(syslog, event);
-    }
-
-    void apply(const LogConfig &next)
-    {
-        if (config == next) {
-            return;
-        }
-
-        Log::setColors(next.isColors());
-        Log::setVerbose(next.verbose());
-
-        if (config.file() != next.file()) {
-            file = next.file().isEmpty() ? nullptr : std::make_shared<FileLog>(next.file());
-        }
-
-#       ifdef HAVE_SYSLOG_H
-        if (config.isSyslog() != next.isSyslog()) {
-            syslog = next.isSyslog() ? std::make_shared<SysLog>() : nullptr;
-        }
-#       endif
-
-        config = next;
-        config.print();
-    }
-
-    void toggleVerbose()
-    {
-        Log::setVerbose(config.toggleVerbose());
-
-        LOG_NOTICE("%s " WHITE_BOLD("verbose: ") CYAN_BOLD("%u"), Config::tag(), Log::verbose());
-    }
+    void apply(const LogConfig &next);
+    void print(const LogEvent *event) const;
+    void restartTimer();
+    void toggleVerbose();
 
     LogConfig config;
     std::shared_ptr<ILogBackend> console;
     std::shared_ptr<ILogBackend> file;
     std::shared_ptr<ILogBackend> syslog;
+    std::shared_ptr<Timer> timer;
+    uint64_t ticks  = 0;
+
+protected:
+    void onTimer(const Timer *timer) override;
 
 private:
-    static void print(const std::shared_ptr<ILogBackend> &backend, const LogEvent *event)
-    {
-        if (backend) {
-            backend->print(event->timestamp(), event->level(), event->line(true), event->offset(true), event->size(true), true);
-            backend->print(event->timestamp(), event->level(), event->line(false), event->offset(false), event->size(false), false);
-        }
-    }
+    static void print(const std::shared_ptr<ILogBackend> &backend, const LogEvent *event);
 };
 
 
@@ -112,8 +84,12 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return d->print(static_cast<const LogEvent *>(event));
     }
 
-    if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
-        return d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
+    if (type == IEvent::CONFIG && event->data() == 0) {
+        if (!event->isRejected()) {
+            d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
+        }
+
+        return d->restartTimer();
     }
 
     if (type == IEvent::SAVE && event->data() == 0) {
@@ -122,5 +98,76 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
 
     if (type == IEvent::CONSOLE && (event->data() == 'v' || event->data() == 'V')) {
         return d->toggleVerbose();
+    }
+
+    if (type == IEvent::EXIT) {
+        return d->timer.reset();
+    }
+}
+
+
+void xmrig::LogService::Private::apply(const LogConfig &next)
+{
+    if (config == next) {
+        return;
+    }
+
+    Log::setColors(next.isColors());
+    Log::setVerbose(next.verbose());
+
+    if (config.file() != next.file()) {
+        file = next.file().isEmpty() ? nullptr : std::make_shared<FileLog>(next.file());
+    }
+
+#   ifdef HAVE_SYSLOG_H
+    if (config.isSyslog() != next.isSyslog()) {
+        syslog = next.isSyslog() ? std::make_shared<SysLog>() : nullptr;
+    }
+#   endif
+
+    config = next;
+    config.print();
+}
+
+
+void xmrig::LogService::Private::print(const LogEvent *event) const
+{
+    print(console, event);
+    print(file, event);
+    print(syslog, event);
+}
+
+
+void xmrig::LogService::Private::restartTimer()
+{
+    const uint64_t repeat = config.printTime() * 1000;
+
+    if ((repeat && timer && timer->repeat() == repeat) || (!repeat && !timer)) {
+        return;
+    }
+
+    timer = repeat ? std::make_shared<Timer>(this, repeat) : nullptr;
+}
+
+
+void xmrig::LogService::Private::toggleVerbose()
+{
+    Log::setVerbose(config.toggleVerbose());
+
+    LOG_NOTICE("%s " WHITE_BOLD("verbose: ") CYAN_BOLD("%u"), Config::tag(), Log::verbose());
+}
+
+
+void xmrig::LogService::Private::onTimer(const Timer * /*timer*/)
+{
+    Process::events().send<PrintEvent>(Chrono::steadyMSecs(), ++ticks);
+}
+
+
+void xmrig::LogService::Private::print(const std::shared_ptr<ILogBackend> &backend, const LogEvent *event)
+{
+    if (backend) {
+        backend->print(event->timestamp(), event->level(), event->line(true), event->offset(true), event->size(true), true);
+        backend->print(event->timestamp(), event->level(), event->line(false), event->offset(false), event->size(false), false);
     }
 }

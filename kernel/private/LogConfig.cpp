@@ -36,6 +36,7 @@ namespace xmrig {
 
 static const constexpr char *kColors    = "colors";
 static const constexpr char *kLogFile   = "log-file";
+static const constexpr char *kPrintTime = "print-time";
 static const constexpr char *kVerbose   = "verbose";
 
 #ifdef HAVE_SYSLOG_H
@@ -51,11 +52,12 @@ xmrig::LogConfig::LogConfig(const Arguments &arguments)
     const size_t verbose = arguments.pos("--verbose");
     if (verbose) {
         const auto &value = arguments.value(verbose + 1U);
-        m_verbose = !value.isEmpty() ? std::min(strtoul(value, nullptr, 0), 5UL) : 1U;
+        m_verbose = !value.isEmpty() ? std::min(value.toUint(), static_cast<uint32_t>(kMaxVerbose)) : 1U;
     }
 
-    m_colors = !arguments.contains("--no-color");
-    m_file   = arguments.value("-l", "--log-file");
+    m_colors    = !arguments.contains("--no-color");
+    m_file      = arguments.value("-l", "--log-file");
+    m_printTime = std::min(arguments.value("--print-time").toUint(kDefaultPrintTime), static_cast<uint32_t>(kMaxPrintTime));
 
 #   ifdef HAVE_SYSLOG_H
     m_syslog = arguments.contains("-S", "--syslog");
@@ -65,9 +67,10 @@ xmrig::LogConfig::LogConfig(const Arguments &arguments)
 
 xmrig::LogConfig::LogConfig(const IJsonReader &reader, const LogConfig &current)
 {
-    m_colors  = reader.getBool(kColors, current.m_colors);
-    m_file    = reader.getString(kLogFile, current.m_file);
-    m_verbose = std::min(reader.getUint(kVerbose, current.m_verbose), 5U);
+    m_colors    = reader.getBool(kColors, current.m_colors);
+    m_file      = reader.getString(kLogFile, current.m_file);
+    m_verbose   = std::min(reader.getUint(kVerbose, current.m_verbose), static_cast<uint32_t>(kMaxVerbose));
+    m_printTime = std::min(reader.getUint(kPrintTime, current.m_printTime), static_cast<uint32_t>(kMaxPrintTime));
 
 #   ifdef HAVE_SYSLOG_H
     m_syslog  = reader.getBool(kSyslog, current.m_syslog);
@@ -80,6 +83,7 @@ bool xmrig::LogConfig::isEqual(const LogConfig &other) const
     return (m_colors        == other.m_colors
             && m_syslog     == other.m_syslog
             && m_file       == other.m_file
+            && m_printTime  == other.m_printTime
             && m_verbose    == other.m_verbose
             );
 }
@@ -92,9 +96,10 @@ void xmrig::LogConfig::print() const
               MAGENTA("<colors=") CYAN("%d")
               MAGENTA(", syslog=") CYAN("%d")
               MAGENTA(", file=") "\"%s\""
+              MAGENTA(", printTime=") CYAN("%u")
               MAGENTA(", verbose=") CYAN("%u")
               MAGENTA(">"),
-              Config::tag(), isColors(), isSyslog(), file().data(), verbose());
+              Config::tag(), isColors(), isSyslog(), file().data(), printTime(), verbose());
 #   endif
 }
 
@@ -104,11 +109,12 @@ void xmrig::LogConfig::save(rapidjson::Document &doc) const
     using namespace rapidjson;
     auto &allocator = doc.GetAllocator();
 
-    doc.AddMember(StringRef(kColors),   m_colors ? Value(kNullType) : Value(m_colors), allocator);
-    doc.AddMember(StringRef(kVerbose),  m_verbose ? Value(m_verbose) : Value(kNullType), allocator);
-    doc.AddMember(StringRef(kLogFile),  m_file.toJSON(), allocator);
+    doc.AddMember(StringRef(kColors),       m_colors ? Value(kNullType) : Value(m_colors), allocator);
+    doc.AddMember(StringRef(kPrintTime),    m_printTime == kDefaultPrintTime ? Value(kNullType) : Value(m_printTime), allocator);
+    doc.AddMember(StringRef(kVerbose),      m_verbose ? Value(m_verbose) : Value(kNullType), allocator);
+    doc.AddMember(StringRef(kLogFile),      m_file.toJSON(), allocator);
 
 #   ifdef HAVE_SYSLOG_H
-    doc.AddMember(StringRef(kSyslog),   m_syslog ? Value(m_syslog) : Value(kNullType), allocator);
+    doc.AddMember(StringRef(kSyslog),       m_syslog ? Value(m_syslog) : Value(kNullType), allocator);
 #   endif
 }

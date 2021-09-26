@@ -33,6 +33,10 @@ class IJsonReader;
 class LogConfig
 {
 public:
+    static constexpr uint32_t kDefaultPrintTime             = 60U;
+    static constexpr uint32_t kMaxPrintTime                 = 3600U;
+    static constexpr uint32_t kMaxVerbose                   = 5U;
+
     LogConfig() = default;
     LogConfig(const Arguments &arguments);
     LogConfig(const IJsonReader &reader, const LogConfig &current);
@@ -40,7 +44,8 @@ public:
     inline bool isColors() const                            { return m_colors; }
     inline bool isSyslog() const                            { return m_syslog; }
     inline const String &file() const                       { return m_file; }
-    inline uint32_t toggleVerbose()                         { m_verbose = (m_verbose + 1) % 6U; return m_verbose; }
+    inline uint32_t printTime() const                       { return m_printTime; }
+    inline uint32_t toggleVerbose()                         { m_verbose = (m_verbose + 1) % (kMaxVerbose + 1); return m_verbose; }
     inline uint32_t verbose() const                         { return m_verbose; }
 
     inline bool operator!=(const LogConfig &other) const    { return !isEqual(other); }
@@ -51,10 +56,11 @@ public:
     void save(rapidjson::Document &doc) const;
 
 private:
-    bool m_colors       = true;
-    bool m_syslog       = false;
+    bool m_colors           = true;
+    bool m_syslog           = false;
     String m_file;
-    uint32_t m_verbose  = 0;
+    uint32_t m_printTime    = kDefaultPrintTime;
+    uint32_t m_verbose      = 0;
 };
 
 

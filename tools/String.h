@@ -64,9 +64,11 @@ public:
     inline bool isValid() const                         { return m_data != nullptr; }
     inline char *data()                                 { return m_data; }
     inline const char *data() const                     { return m_data; }
-    inline int64_t toInt64() const                      { return isEmpty() ? 0 : strtoll(data(), nullptr, 0); }
+    inline int32_t toInt(int32_t dv = 0) const          { return isEmpty() ? dv : strtol(data(), nullptr, 0); }
+    inline int64_t toInt64(int64_t dv = 0) const        { return isEmpty() ? dv : strtoll(data(), nullptr, 0); }
     inline size_t size() const                          { return m_size; }
-    inline uint64_t toUint64() const                    { return isEmpty() ? 0 : strtoull(data(), nullptr, 0); }
+    inline uint32_t toUint(uint32_t dv = 0) const       { return isEmpty() ? dv : strtoul(data(), nullptr, 0); }
+    inline uint64_t toUint64(uint64_t dv = 0) const     { return isEmpty() ? dv : strtoull(data(), nullptr, 0); }
 
 
     inline bool operator!=(const char *str) const       { return !isEqual(str); }
