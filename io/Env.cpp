@@ -17,27 +17,13 @@
  */
 
 #include "base/io/Env.h"
+#include "base/kernel/OS.h"
 #include "base/kernel/Process.h"
 #include "version.h"
 
 
 #include <regex>
-#include <uv.h>
 #include <map>
-
-
-#ifndef _WIN32
-#   include <unistd.h>
-#endif
-
-
-#ifndef UV_MAXHOSTNAMESIZE
-#   ifdef MAXHOSTNAMELEN
-#       define UV_MAXHOSTNAMESIZE (MAXHOSTNAMELEN + 1)
-#   else
-#       define UV_MAXHOSTNAMESIZE 256
-#   endif
-#endif
 
 
 namespace xmrig {
@@ -51,7 +37,7 @@ static void createVariables()
 {
     variables.insert({ "XMRIG_VERSION",  APP_VERSION });
     variables.insert({ "XMRIG_KIND",     APP_KIND });
-    variables.insert({ "XMRIG_HOSTNAME", Env::hostname() });
+    variables.insert({ "XMRIG_HOSTNAME", OS::hostname() });
     variables.insert({ "XMRIG_EXE",      Process::locate(Process::ExePathLocation) });
     variables.insert({ "XMRIG_EXE_DIR",  Process::locate(Process::ExeLocation) });
     variables.insert({ "XMRIG_CWD",      Process::locate(Process::CwdLocation) });
@@ -61,7 +47,7 @@ static void createVariables()
 
     String hostname = "HOSTNAME";
     if (!getenv(hostname)) { // NOLINT(concurrency-mt-unsafe)
-        variables.insert({ std::move(hostname), Env::hostname() });
+        variables.insert({ std::move(hostname), OS::hostname() });
     }
 }
 #endif
@@ -137,23 +123,4 @@ xmrig::String xmrig::Env::get(const String &name, const std::map<String, String>
 #   endif
 
     return static_cast<const char *>(getenv(name)); // NOLINT(concurrency-mt-unsafe)
-}
-
-
-xmrig::String xmrig::Env::hostname()
-{
-    char buf[UV_MAXHOSTNAMESIZE]{};
-    size_t size = sizeof(buf);
-
-#   if UV_VERSION_HEX >= 0x010c00
-    if (uv_os_gethostname(buf, &size) == 0) {
-        return static_cast<const char *>(buf);
-    }
-#   else
-    if (gethostname(buf, size) == 0) {
-        return static_cast<const char *>(buf);
-    }
-#   endif
-
-    return {};
 }

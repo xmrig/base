@@ -34,6 +34,7 @@ set(HEADERS
     kernel/Entry.h
     kernel/EventListener.h
     kernel/Events.h
+    kernel/Lib.h
     kernel/events/ConfigEvent.h
     kernel/events/ConsoleEvent.h
     kernel/events/Event.h
@@ -133,6 +134,7 @@ set(SOURCES
     kernel/Entry.cpp
     kernel/EventListener.cpp
     kernel/Events.cpp
+    kernel/Lib.cpp
     kernel/events/SaveEvent.cpp
     kernel/OS.cpp
     kernel/private/LogConfig.cpp

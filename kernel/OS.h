@@ -20,10 +20,10 @@
 #define XMRIG_OS_H
 
 
+#include "base/tools/String.h"
+
+
 #include <string>
-
-
-#include <cstdint>
 
 
 namespace xmrig {
@@ -41,9 +41,12 @@ public:
     static bool setThreadAffinity(uint64_t cpu_id);
     static std::string name();
     static std::string userAgent();
+    static String hostname();
     static uint64_t freemem();
     static uint64_t idleTime();
     static uint64_t totalmem();
+    static void destroy();
+    static void init();
     static void setProcessPriority(int priority);
     static void setThreadPriority(int priority);
 };

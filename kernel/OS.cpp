@@ -26,6 +26,20 @@
 #include "version.h"
 
 
+#ifndef XMRIG_OS_WIN
+#   include <unistd.h>
+#endif
+
+
+#ifndef UV_MAXHOSTNAMESIZE
+#   ifdef MAXHOSTNAMELEN
+#       define UV_MAXHOSTNAMESIZE (MAXHOSTNAMELEN + 1)
+#   else
+#       define UV_MAXHOSTNAMESIZE 256
+#   endif
+#endif
+
+
 namespace xmrig {
 
 
@@ -57,6 +71,20 @@ std::string xmrig::OS::userAgent()
                        Process::versions()[Versions::kCompiler]
             );
 }
+
+
+#ifndef XMRIG_OS_WIN
+xmrig::String xmrig::OS::hostname()
+{
+    char buf[UV_MAXHOSTNAMESIZE]{};
+
+    if (gethostname(buf, sizeof(buf)) == 0) {
+        return static_cast<const char *>(buf);
+    }
+
+    return {};
+}
+#endif
 
 
 uint64_t xmrig::OS::freemem()

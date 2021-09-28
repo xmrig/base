@@ -104,6 +104,7 @@ xmrig::Process::Process(int argc, char **argv)
 {
     d = new Private(argc, argv);
 
+    OS::init();
     srand(static_cast<unsigned int>(Chrono::currentMSecsSinceEpoch() ^ reinterpret_cast<uintptr_t>(this)));
 
     d_fn()->setDataDir(arguments().value("--data-dir", "-d"));
@@ -130,6 +131,8 @@ xmrig::Process::Process(int argc, char **argv)
 
 xmrig::Process::~Process()
 {
+    OS::destroy();
+
     delete d;
 
     d = nullptr;

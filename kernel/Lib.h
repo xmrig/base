@@ -1,5 +1,5 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,39 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_ENV_H
-#define XMRIG_ENV_H
+#ifndef XMRIG_LIB_H
+#define XMRIG_LIB_H
 
 
-#include "base/tools/String.h"
-
-
-#include <map>
+#include "base/tools/Object.h"
 
 
 namespace xmrig {
 
 
-class Env
+class Lib
 {
 public:
-    static String expand(const char *in, const std::map<String, String> &extra = {});
-    static String get(const String &name, const std::map<String, String> &extra = {});
+    XMRIG_DISABLE_COPY_MOVE(Lib)
+
+    Lib();
+    inline ~Lib()   { close(); }
+
+    bool isOpen() const;
+    bool open(const char *filename);
+    bool sym(const char *name, void **ptr);
+    const char *lastError() const;
+    void close();
+
+    template<typename T>
+    inline bool sym(const char *name, T t) { return sym(name, reinterpret_cast<void **>(t)); }
+
+private:
+    XMRIG_DECL_PRIVATE()
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_ENV_H */
+#endif // XMRIG_LIB_H

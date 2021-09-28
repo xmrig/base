@@ -21,9 +21,18 @@
 
 #include "base/kernel/OS.h"
 #include "3rdparty/fmt/core.h"
+#include "base/kernel/Lib.h"
+#include "base/tools/Cvt.h"
 
 
 namespace xmrig {
+
+
+typedef int (WSAAPI *GetHostNameW_t)(PWSTR, int); // NOLINT(modernize-use-using)
+
+
+static Lib ws2_32;
+static GetHostNameW_t pGetHostNameW = nullptr;
 
 
 static inline OSVERSIONINFOEX winOsVersion()
@@ -75,6 +84,26 @@ std::string xmrig::OS::name()
 }
 
 
+xmrig::String xmrig::OS::hostname()
+{
+    if (pGetHostNameW) {
+        WCHAR buf[UV_MAXHOSTNAMESIZE]{};
+
+        if (pGetHostNameW(buf, UV_MAXHOSTNAMESIZE) == 0) {
+            return Cvt::toUtf8(buf).c_str();
+        }
+    }
+
+    char buf[UV_MAXHOSTNAMESIZE]{};
+
+    if (gethostname(buf, sizeof(buf)) == 0) {
+        return static_cast<const char *>(buf);
+    }
+
+    return {};
+}
+
+
 uint64_t xmrig::OS::idleTime()
 {
     LASTINPUTINFO info{};
@@ -85,6 +114,20 @@ uint64_t xmrig::OS::idleTime()
     }
 
     return static_cast<uint64_t>(GetTickCount() - info.dwTime);
+}
+
+
+void xmrig::OS::destroy()
+{
+    ws2_32.close();
+}
+
+
+void xmrig::OS::init()
+{
+    if (ws2_32.open("Ws2_32.dll")) {
+        ws2_32.sym("GetHostNameW", &pGetHostNameW);
+    }
 }
 
 

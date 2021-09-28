@@ -31,6 +31,7 @@
 //#include "core/config/Config.h"
 //#include "core/Controller.h"
 #include "version.h"
+#include "base/kernel/OS.h"
 
 
 #ifdef XMRIG_FEATURE_HTTP
@@ -232,6 +233,6 @@ void xmrig::Api::genWorkerId(const String &id)
 {
     m_workerId = Env::expand(id);
     if (m_workerId.isEmpty()) {
-        m_workerId = Env::hostname();
+        m_workerId = OS::hostname();
     }
 }

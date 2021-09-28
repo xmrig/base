@@ -62,6 +62,16 @@ uint64_t xmrig::OS::idleTime()
 }
 
 
+void xmrig::OS::destroy()
+{
+}
+
+
+void xmrig::OS::init()
+{
+}
+
+
 void xmrig::OS::setProcessPriority(int)
 {
 }

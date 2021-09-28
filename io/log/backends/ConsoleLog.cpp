@@ -52,6 +52,8 @@ xmrig::ConsoleLog::ConsoleLog()
            SetConsoleMode(handle, mode | ENABLE_EXTENDED_FLAGS);
         }
     }
+
+    SetConsoleOutputCP(65001);
 #   endif
 }
 
