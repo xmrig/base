@@ -193,6 +193,11 @@ if (XMRIG_OS_WIN)
         kernel/private/Title.cpp
         )
 
+    if (WITH_COM)
+        list(APPEND HEADERS kernel/Taskbar.h)
+        list(APPEND SOURCES kernel/Taskbar.cpp)
+    endif()
+
     list(APPEND LIBS ws2_32 psapi iphlpapi userenv)
 elseif (XMRIG_OS_APPLE)
     list(APPEND SOURCES

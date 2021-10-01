@@ -18,6 +18,7 @@
 #option(WITH_SECURE_JIT      "Enable secure access to JIT memory" OFF)
 #option(BUILD_STATIC         "Build static binary" OFF)
 #option(HWLOC_DEBUG          "Enable hwloc debug helpers and log" OFF)
+#option(WITH_COM             "Enable Windows COM support" ON)
 #option(WITH_DEPRECATED      "Enable deprecated config format support" ON)
 
 add_definitions(-D__STDC_FORMAT_MACROS -DUNICODE -D_FILE_OFFSET_BITS=64 -DXMRIG_JSON_SINGLE_LINE_ARRAY)
@@ -47,3 +48,4 @@ include(option/algorithms)
 include(option/benchmark)
 include(option/env)
 include(option/syslog)
+include(option/com)

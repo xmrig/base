@@ -119,12 +119,20 @@ uint64_t xmrig::OS::idleTime()
 
 void xmrig::OS::destroy()
 {
+#   ifdef XMRIG_FEATURE_COM
+    CoUninitialize();
+#   endif
+
     ws2_32.close();
 }
 
 
 void xmrig::OS::init()
 {
+#   ifdef XMRIG_FEATURE_COM
+    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+#   endif
+
     if (ws2_32.open("Ws2_32.dll")) {
         ws2_32.sym("GetHostNameW", &pGetHostNameW);
     }
