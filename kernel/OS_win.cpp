@@ -25,6 +25,11 @@
 #include "base/tools/Cvt.h"
 
 
+#ifndef UV_MAXHOSTNAMESIZE
+#   define UV_MAXHOSTNAMESIZE 256
+#endif
+
+
 namespace xmrig {
 
 
