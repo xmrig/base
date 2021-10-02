@@ -149,6 +149,8 @@ xmrig::Entry::Entry(const Usage &usage)
 
         std::cout << "      --user-agent=<UA>         set custom user agent string\n";
         std::cout << "      --print-user-agent        print current user agent and exit\n";
+        std::cout << "      --dns-ipv6                prefer IPv6 records from DNS responses\n";
+        std::cout << "      --dns-ttl=<N>             N seconds (default: 30) TTL for internal DNS cache\n";
 
 #       ifdef XMRIG_FEATURE_HWLOC
         std::cout << "      --export-topology         export hwloc topology to a XML file and exit\n";

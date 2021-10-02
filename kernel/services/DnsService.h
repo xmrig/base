@@ -1,5 +1,5 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,33 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_DNSCONFIG_H
-#define XMRIG_DNSCONFIG_H
+#ifndef XMRIG_DNSSERVICE_H
+#define XMRIG_DNSSERVICE_H
 
 
-#include "3rdparty/rapidjson/fwd.h"
+#include "base/kernel/Service.h"
 
 
 namespace xmrig {
 
 
-class DnsConfig
+class DnsService : public Service
 {
 public:
-    static const char *kField;
-    static const char *kIPv6;
-    static const char *kTTL;
+    XMRIG_DISABLE_COPY_MOVE(DnsService)
 
-    DnsConfig() = default;
-    DnsConfig(const rapidjson::Value &value);
+    DnsService();
+    ~DnsService() override = default;
 
-    inline bool isIPv6() const  { return m_ipv6; }
-    inline uint32_t ttl() const { return m_ttl * 1000U; }
-
-    rapidjson::Value toJSON(rapidjson::Document &doc) const;
-
+protected:
+    void onEvent(uint32_t type, IEvent *event) override;
 
 private:
-    bool m_ipv6     = false;
-    uint32_t m_ttl  = 30U;
+    class Private;
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_DNSCONFIG_H */
+#endif // XMRIG_DNSSERVICE_H

@@ -34,7 +34,6 @@ set(HEADERS
     kernel/Entry.h
     kernel/EventListener.h
     kernel/Events.h
-    kernel/Lib.h
     kernel/events/ConfigEvent.h
     kernel/events/ConsoleEvent.h
     kernel/events/Event.h
@@ -63,17 +62,19 @@ set(HEADERS
     kernel/interfaces/ITcpServerListener.h
     kernel/interfaces/ITimerListener.h
     kernel/interfaces/IWatcherListener.h
+    kernel/Lib.h
     kernel/OS.h
+    kernel/private/DnsConfig.h
     kernel/private/LogConfig.h
     kernel/Process.h
     kernel/Service.h
     kernel/services/ConfigService.h
     kernel/services/ConsoleService.h
+    kernel/services/DnsService.h
     kernel/services/LogService.h
     kernel/services/SignalService.h
     kernel/Versions.h
     net/dns/Dns.h
-    net/dns/DnsConfig.h
     net/dns/DnsRecord.h
     net/dns/DnsRecords.h
     net/dns/DnsRequest.h
@@ -130,22 +131,23 @@ set(SOURCES
     io/Watcher.cpp
     kernel/App.cpp
     kernel/Config.cpp
-    kernel/private/Title.cpp
     kernel/Entry.cpp
     kernel/EventListener.cpp
     kernel/Events.cpp
-    kernel/Lib.cpp
     kernel/events/SaveEvent.cpp
+    kernel/Lib.cpp
     kernel/OS.cpp
+    kernel/private/DnsConfig.cpp
     kernel/private/LogConfig.cpp
+    kernel/private/Title.cpp
     kernel/Process.cpp
     kernel/services/ConfigService.cpp
     kernel/services/ConsoleService.cpp
+    kernel/services/DnsService.cpp
     kernel/services/LogService.cpp
     kernel/services/SignalService.cpp
     kernel/Versions.cpp
     net/dns/Dns.cpp
-    net/dns/DnsConfig.cpp
     net/dns/DnsRecord.cpp
     net/dns/DnsRecords.cpp
     net/dns/DnsUvBackend.cpp

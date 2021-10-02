@@ -16,9 +16,16 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "base/net/dns/DnsConfig.h"
+#include "base/kernel/private/DnsConfig.h"
 #include "3rdparty/rapidjson/document.h"
 #include "base/io/json/Json.h"
+#include "base/tools/Arguments.h"
+
+
+#ifdef APP_DEBUG
+#   include "base/io/log/Log.h"
+#   include "base/kernel/Config.h"
+#endif
 
 
 #include <algorithm>
@@ -35,10 +42,23 @@ const char *DnsConfig::kTTL     = "ttl";
 } // namespace xmrig
 
 
-xmrig::DnsConfig::DnsConfig(const rapidjson::Value &value)
+xmrig::DnsConfig::DnsConfig(const Arguments &arguments) :
+    m_ipv6(arguments.contains("--dns-ipv6")),
+    m_ttl(std::max(arguments.value("--dns-ttl").toUint(kDefaultTTL), 1U))
 {
-    m_ipv6  = Json::getBool(value, kIPv6, m_ipv6);
-    m_ttl   = std::max(Json::getUint(value, kTTL, m_ttl), 1U);
+}
+
+
+xmrig::DnsConfig::DnsConfig(const rapidjson::Value &value, const DnsConfig &current)
+{
+    m_ipv6  = Json::getBool(value, kIPv6, current.m_ipv6);
+    m_ttl   = std::max(Json::getUint(value, kTTL, current.m_ttl), 1U);
+}
+
+
+bool xmrig::DnsConfig::isEqual(const DnsConfig &other) const
+{
+    return other.m_ipv6 == m_ipv6 && other.m_ttl == m_ttl;
 }
 
 
@@ -49,8 +69,20 @@ rapidjson::Value xmrig::DnsConfig::toJSON(rapidjson::Document &doc) const
     auto &allocator = doc.GetAllocator();
     Value obj(kObjectType);
 
-    obj.AddMember(StringRef(kIPv6), m_ipv6, allocator);
-    obj.AddMember(StringRef(kTTL),  m_ttl, allocator);
+    obj.AddMember(StringRef(kIPv6), m_ipv6 ? Value(m_ipv6) : Value(kNullType), allocator);
+    obj.AddMember(StringRef(kTTL),  m_ttl == kDefaultTTL ? Value(kNullType) : Value(m_ttl), allocator);
 
     return obj;
+}
+
+
+void xmrig::DnsConfig::print() const
+{
+#   ifdef APP_DEBUG
+    LOG_DEBUG("%s " MAGENTA_BOLD("DNS")
+              MAGENTA("<ipv6=") CYAN("%d")
+              MAGENTA(", ttl=") CYAN("%u")
+              MAGENTA(">"),
+              Config::tag(), m_ipv6, m_ttl);
+#   endif
 }

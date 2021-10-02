@@ -26,6 +26,7 @@
 #include "base/kernel/Service.h"
 #include "base/kernel/services/ConfigService.h"
 #include "base/kernel/services/ConsoleService.h"
+#include "base/kernel/services/DnsService.h"
 #include "base/kernel/services/LogService.h"
 #include "base/kernel/services/SignalService.h"
 #include "base/net/tools/NetBuffer.h"
@@ -76,6 +77,7 @@ xmrig::App::App() :
         add<ConsoleService>();
     }
 
+    add<DnsService>();
     add<ConfigService>();
 }
 

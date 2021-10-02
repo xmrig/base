@@ -65,7 +65,7 @@ private:
 };
 
 
-} /* namespace xmrig */
+} // namespace xmrig
 
 
-#endif /* XMRIG_DNSUVBACKEND_H */
+#endif // XMRIG_DNSUVBACKEND_H
