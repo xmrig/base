@@ -59,11 +59,24 @@ const char *Versions::kFmt          = "fmt";
 const char *Versions::kRapidjson    = "rapidjson";
 const char *Versions::kUv           = "uv";
 
-#if defined(__clang__)
+#if defined (__INTEL_LLVM_COMPILER)
+    const char *Versions::kCompiler = "icx";
+#elif defined(__INTEL_COMPILER)
+    const char *Versions::kCompiler = "icc";
+#elif defined(__clang__)
     const char *Versions::kCompiler = "clang";
 #elif defined(__GNUC__)
     const char *Versions::kCompiler = "gcc";
 #elif defined(_MSC_VER)
+#   if (_MSC_VER >= 1920)
+#       define MSVC_VERSION 2019
+#   elif (_MSC_VER >= 1910 && _MSC_VER < 1920)
+#       define MSVC_VERSION 2017
+#   elif _MSC_VER == 1900
+#       define MSVC_VERSION 2015
+#   else
+#       define MSVC_VERSION 0
+#   endif
     const char *Versions::kCompiler = "MSVC";
 #else
     const char *Versions::kCompiler = "unknown";
@@ -110,7 +123,15 @@ xmrig::Versions::Versions()
     m_data.insert({ kRapidjson,     RAPIDJSON_VERSION_STRING });
     m_data.insert({ kFmt,           fmt::format("{}.{}.{}", FMT_VERSION / 10000, FMT_VERSION / 100 % 100, FMT_VERSION % 100).c_str() });
 
-#   if defined(__clang__)
+#   if defined (__INTEL_LLVM_COMPILER)
+    m_data.insert({ kCompiler,      fmt::format("{}.{}.{}", __INTEL_LLVM_COMPILER / 10000, __INTEL_LLVM_COMPILER / 100 % 100, __INTEL_LLVM_COMPILER % 100).c_str() });
+#   elif defined (__INTEL_COMPILER)
+#       if (__INTEL_COMPILER >= 2020)
+        m_data.insert({ kCompiler,  XMRIG_TOSTRING(__INTEL_COMPILER) });
+#       else
+        m_data.insert({ kCompiler,  fmt::format("{}.{}.{}", __INTEL_COMPILER / 100, __INTEL_COMPILER / 10 % 10, __INTEL_COMPILER % 10).c_str() });
+#       endif
+#   elif defined(__clang__)
     m_data.insert({ kCompiler,      XMRIG_TOSTRING(__clang_major__.__clang_minor__.__clang_patchlevel__) });
 #   elif defined(__GNUC__)
     m_data.insert({ kCompiler,      XMRIG_TOSTRING(__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__) });

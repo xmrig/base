@@ -15,6 +15,9 @@ endif()
 
 include(CheckSymbolExists)
 
+message(STATUS "C_COMPILER_ID   \t= ${CMAKE_C_COMPILER_ID}")
+message(STATUS "CXX_COMPILER_ID \t= ${CMAKE_CXX_COMPILER_ID}")
+
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-strict-aliasing")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Ofast")
