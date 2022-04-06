@@ -1,6 +1,5 @@
 /* XMRig
- * Copyright (c) 2018      Lee Clagett <https://github.com/vtnerd>
- * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
  * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -17,41 +16,36 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_TLSCONTEXT_H
-#define XMRIG_TLSCONTEXT_H
+#ifndef XMRIG_TLSSERVICE_H
+#define XMRIG_TLSSERVICE_H
 
 
-#include "base/tools/Object.h"
-
-
-using SSL_CTX = struct ssl_ctx_st;
+#include "base/kernel/Service.h"
 
 
 namespace xmrig {
 
 
-class TlsConfig;
-
-
-class TlsContext
+class TlsService : public Service
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE(TlsContext)
+    XMRIG_DISABLE_COPY_MOVE(TlsService)
 
-    ~TlsContext();
+    TlsService();
+    ~TlsService() override = default;
 
-    static std::shared_ptr<TlsContext> create(const TlsConfig &config);
-
-    SSL_CTX *handle() const;
+protected:
+    void onEvent(uint32_t type, IEvent *event) override;
 
 private:
     XMRIG_DECL_PRIVATE()
-
-    TlsContext();
 };
+
+
+const char *tls_tag();
 
 
 } // namespace xmrig
 
 
-#endif // XMRIG_TLSCONTEXT_H
+#endif // XMRIG_TLSSERVICE_H

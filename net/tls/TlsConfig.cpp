@@ -1,7 +1,7 @@
 /* XMRig
  * Copyright (c) 2018      Lee Clagett <https://github.com/vtnerd>
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,15 +24,25 @@
 #include "base/net/tls/TlsGen.h"
 
 
+#ifdef APP_DEBUG
+#   include "base/io/log/Log.h"
+#   include "base/kernel/Config.h"
+#endif
+
+
 namespace xmrig {
+
+
+extern const char *tls_tag();
 
 
 const char *TlsConfig::kCert            = "cert";
 const char *TlsConfig::kEnabled         = "enabled";
-const char *TlsConfig::kCertKey         = "cert_key";
+const char *TlsConfig::kCertKey         = "cert-key";
 const char *TlsConfig::kCiphers         = "ciphers";
 const char *TlsConfig::kCipherSuites    = "ciphersuites";
 const char *TlsConfig::kDhparam         = "dhparam";
+const char *TlsConfig::kField           = "tls";
 const char *TlsConfig::kGen             = "gen";
 const char *TlsConfig::kProtocols       = "protocols";
 
@@ -45,6 +55,12 @@ static const char *kTLSv1_3             = "TLSv1.3";
 } // namespace xmrig
 
 
+xmrig::TlsConfig::TlsConfig(const Arguments &arguments)
+{
+
+}
+
+
 /**
  * "cert"         load TLS certificate chain from file.
  * "cert_key"     load TLS private key from file.
@@ -52,20 +68,20 @@ static const char *kTLSv1_3             = "TLSv1.3";
  * "ciphersuites" set list of available TLSv1.3 ciphersuites.
  * "dhparam"      load DH parameters for DHE ciphers from file.
  */
-xmrig::TlsConfig::TlsConfig(const rapidjson::Value &value)
+xmrig::TlsConfig::TlsConfig(const rapidjson::Value &value, const TlsConfig &current)
 {
     if (value.IsObject()) {
-        m_enabled = Json::getBool(value, kEnabled, m_enabled);
-
         setProtocols(Json::getString(value, kProtocols));
-        setCert(Json::getString(value, kCert));
-        setKey(Json::getString(value, kCertKey));
-        setCiphers(Json::getString(value, kCiphers));
-        setCipherSuites(Json::getString(value, kCipherSuites));
-        setDH(Json::getString(value, kDhparam));
+
+        m_enabled       = Json::getBool(value, kEnabled, current.m_enabled);
+        m_cert          = Json::getString(value, kCert, current.m_cert);
+        m_key           = Json::getString(value, kCertKey, current.m_key);
+        m_ciphers       = Json::getString(value, kCiphers, current.m_ciphers);
+        m_ciphersuites  = Json::getString(value, kCipherSuites, current.m_ciphersuites);
+        m_dhparam       = Json::getString(value, kDhparam, current.m_dhparam);
 
         if (m_key.isNull()) {
-            setKey(Json::getString(value, "cert-key"));
+            m_key = Json::getString(value, "cert_key", current.m_key);
         }
 
         if (m_enabled && !isValid()) {
@@ -79,11 +95,6 @@ xmrig::TlsConfig::TlsConfig(const rapidjson::Value &value)
             generate();
         }
     }
-#   ifdef XMRIG_FORCE_TLS
-    else if (value.IsNull()) {
-        generate();
-    }
-#   endif
     else if (value.IsString()) {
         generate(value.GetString());
     }
@@ -101,17 +112,31 @@ bool xmrig::TlsConfig::generate(const char *commonName)
         gen.generate(commonName);
     }
     catch (std::exception &ex) {
-        LOG_ERR("%s", ex.what());
+        m_enabled = false;
+
+        LOG_ERR("%s " RED_BOLD("%s"), tls_tag(), ex.what());
 
         return false;
     }
 
-    setCert(gen.cert());
-    setKey(gen.certKey());
-
-    m_enabled = true;
+    m_cert      = gen.cert();
+    m_key       = gen.certKey();
+    m_enabled   = true;
 
     return true;
+}
+
+
+bool xmrig::TlsConfig::isEqual(const TlsConfig &other) const
+{
+    return (m_enabled           == other.m_enabled
+            && m_protocols      == other.m_protocols
+            && m_cert           == other.m_cert
+            && m_ciphers        == other.m_ciphers
+            && m_ciphersuites   == other.m_ciphersuites
+            && m_dhparam        == other.m_dhparam
+            && m_key            == other.m_key
+            );
 }
 
 
@@ -151,10 +176,27 @@ rapidjson::Value xmrig::TlsConfig::toJSON(rapidjson::Document &doc) const
     obj.AddMember(StringRef(kCert),         m_cert.toJSON(), allocator);
     obj.AddMember(StringRef(kCertKey),      m_key.toJSON(), allocator);
     obj.AddMember(StringRef(kCiphers),      m_ciphers.toJSON(), allocator);
-    obj.AddMember(StringRef(kCipherSuites), m_cipherSuites.toJSON(), allocator);
+    obj.AddMember(StringRef(kCipherSuites), m_ciphersuites.toJSON(), allocator);
     obj.AddMember(StringRef(kDhparam),      m_dhparam.toJSON(), allocator);
 
     return obj;
+}
+
+
+void xmrig::TlsConfig::print() const
+{
+#   ifdef APP_DEBUG
+    LOG_DEBUG("%s " MAGENTA_BOLD("TLS")
+              MAGENTA("<enabled=") CYAN("%d")
+              MAGENTA(", protocols=") CYAN("%u")
+              MAGENTA(", cert=") "\"%s\""
+              MAGENTA(", ciphers=") "\"%s\""
+              MAGENTA(", ciphersuites=") "\"%s\""
+              MAGENTA(", dhparam=") "\"%s\""
+              MAGENTA(", key=") "\"%s\""
+              MAGENTA(">"),
+              Config::tag(), m_enabled, m_protocols, m_cert.data(), m_ciphers.data(), m_ciphersuites.data(), m_dhparam.data(), m_key.data());
+#   endif
 }
 
 
@@ -183,11 +225,9 @@ void xmrig::TlsConfig::setProtocols(const rapidjson::Value &protocols)
 {
     m_protocols = 0;
 
-    if (protocols.IsUint()) {
-        return setProtocols(protocols.GetUint());
-    }
-
     if (protocols.IsString()) {
-        return setProtocols(protocols.GetString());
+        setProtocols(protocols.GetString());
+    } else if (protocols.IsUint()) {
+        m_protocols = protocols.GetUint();
     }
 }

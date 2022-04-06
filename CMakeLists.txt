@@ -279,6 +279,7 @@ endif()
 
 if (WITH_TLS)
     list(APPEND HEADERS
+        kernel/services/TlsService.h
         net/stratum/Tls.h
         net/tls/ServerTls.h
         net/tls/TlsConfig.h
@@ -287,6 +288,7 @@ if (WITH_TLS)
         )
 
     list(APPEND SOURCES
+        kernel/services/TlsService.cpp
         net/stratum/Tls.cpp
         net/tls/ServerTls.cpp
         net/tls/TlsConfig.cpp
