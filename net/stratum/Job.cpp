@@ -23,6 +23,7 @@
 
 
 #include "base/net/stratum/Job.h"
+#include "base/tools/Alignment.h"
 #include "base/tools/Buffer.h"
 #include "base/tools/Cvt.h"
 #include "base/tools/cryptonote/BlockTemplate.h"
@@ -40,7 +41,7 @@ xmrig::Job::Job(bool nicehash, const Algorithm &algorithm, const String &clientI
 
 bool xmrig::Job::isEqual(const Job &other) const
 {
-    return m_id == other.m_id && m_clientId == other.m_clientId && memcmp(m_blob, other.m_blob, sizeof(m_blob)) == 0;
+    return m_id == other.m_id && m_clientId == other.m_clientId && memcmp(m_blob, other.m_blob, sizeof(m_blob)) == 0 && m_target == other.m_target;
 }
 
 
@@ -66,7 +67,7 @@ bool xmrig::Job::setBlob(const char *blob)
         return false;
     }
 
-    if (*nonce() != 0 && !m_nicehash) {
+    if (readUnaligned(nonce()) != 0 && !m_nicehash) {
         m_nicehash = true;
     }
 
@@ -153,6 +154,19 @@ void xmrig::Job::setSigKey(const char *sig_key)
 #   else
     m_rawSigKey = sig_key;
 #   endif
+}
+
+
+int32_t xmrig::Job::nonceOffset() const
+{
+   auto f = algorithm().family();
+   if (f == Algorithm::KAWPOW)     return 32;
+   if (f == Algorithm::GHOSTRIDER) return 76;
+
+   auto id = algorithm().id();
+   if (id == Algorithm::ASTROBWT_DERO_2) return 44;
+
+   return 39;
 }
 
 

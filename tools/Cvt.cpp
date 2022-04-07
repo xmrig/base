@@ -1,7 +1,7 @@
 /* XMRig
  * Copyright (c) 2013-2020 Frank Denis <j at pureftpd dot org>
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <random>
 
 
-#ifdef XMRIG_FEATURE_SODIUM
+#if defined(XMRIG_FEATURE_SODIUM) || defined(XMRIG_SODIUM)
 #   include <sodium.h>
 #endif
 
@@ -67,7 +67,7 @@ static char *cvt_bin2hex(char *const hex, const size_t hex_maxlen, const unsigne
 }
 
 
-#ifndef XMRIG_FEATURE_SODIUM
+#if !defined(XMRIG_FEATURE_SODIUM) && !defined(XMRIG_SODIUM)
 static std::random_device randomDevice;
 static std::mt19937 randomEngine(randomDevice());
 
@@ -228,7 +228,7 @@ xmrig::Buffer xmrig::Cvt::randomBytes(const size_t size)
 {
     Buffer buf(size);
 
-#   ifndef XMRIG_FEATURE_SODIUM
+#   if !defined(XMRIG_FEATURE_SODIUM) && !defined(XMRIG_SODIUM)
     std::uniform_int_distribution<> dis(0, 255);
 
     for (size_t i = 0; i < size; ++i) {
@@ -288,7 +288,7 @@ xmrig::String xmrig::Cvt::toHex(const uint8_t *in, size_t size)
 
 void xmrig::Cvt::randomBytes(void *buf, size_t size)
 {
-#   ifndef XMRIG_FEATURE_SODIUM
+#   if !defined(XMRIG_FEATURE_SODIUM) && !defined(XMRIG_SODIUM)
     std::uniform_int_distribution<> dis(0, 255);
 
     for (size_t i = 0; i < size; ++i) {

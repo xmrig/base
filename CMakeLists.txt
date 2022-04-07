@@ -96,6 +96,7 @@ set(HEADERS
     net/tools/MemPool.h
     net/tools/NetBuffer.h
     net/tools/Storage.h
+    tools/Alignment.h
     tools/Arguments.h
     tools/Baton.h
     tools/bswap_64.h
@@ -166,6 +167,7 @@ set(SOURCES
     net/tools/LineReader.cpp
     net/tools/NetBuffer.cpp
     tools/Arguments.cpp
+    tools/Chrono.cpp
     tools/Cvt.cpp
     tools/String.cpp
     tools/Timer.cpp

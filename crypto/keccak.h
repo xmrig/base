@@ -17,6 +17,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef XMRIG_KECCAK_H
 #define XMRIG_KECCAK_H
 

@@ -16,20 +16,38 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_BSWAP_64_H
-#define XMRIG_BSWAP_64_H
+#ifndef XMRIG_ALIGNMENT_H
+#define XMRIG_ALIGNMENT_H
 
 
-#ifdef _MSC_VER
-#   include <cstdlib>
-#   define bswap_64(x) _byteswap_uint64(x)
-#   define bswap_32(x) _byteswap_ulong(x)
-#elif defined __GNUC__
-#   define bswap_64(x) __builtin_bswap64(x)
-#   define bswap_32(x) __builtin_bswap32(x)
-#else
-#   include <byteswap.h>
-#endif
+#include <type_traits>
+#include <cstring>
 
 
-#endif // XMRIG_BSWAP_64_H
+namespace xmrig {
+
+
+template<typename T>
+inline T readUnaligned(const T* ptr)
+{
+    static_assert(std::is_integral<T>::value, "Integer type required");
+
+    T result;
+    memcpy(&result, ptr, sizeof(T));
+    return result;
+}
+
+
+template<typename T>
+inline void writeUnaligned(T* ptr, T data)
+{
+    static_assert(std::is_integral<T>::value, "Integer type required");
+
+    memcpy(ptr, &data, sizeof(T));
+}
+
+
+} /* namespace xmrig */
+
+
+#endif /* XMRIG_ALIGNMENT_H */
