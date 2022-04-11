@@ -103,11 +103,19 @@ void xmrig::TlsContext::Private::load(const TlsConfig &config)
     }
 
     const auto cert = Env::expand(config.cert());
+    if (cert.isNull()) {
+        throw std::runtime_error("Unable to load cert file");
+    }
+
     if (SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
         throw std::runtime_error(fmt::format("Unable to load cert file \"{}\": \"{}\"", cert.data(), error()));
     }
 
     const auto key = Env::expand(config.key());
+    if (key.isNull()) {
+        throw std::runtime_error("Unable to load key file");
+    }
+
     if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
         throw std::runtime_error(fmt::format("Unable to load key file \"{}\": \"{}\"", key.data(), error()));
     }

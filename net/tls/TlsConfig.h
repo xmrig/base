@@ -75,7 +75,7 @@ private:
     void setProtocols(const char *protocols);
     void setProtocols(const rapidjson::Value &protocols);
 
-    bool m_enabled       = true;
+    bool m_enabled       = false;
     uint32_t m_protocols = 0;
     String m_cert;
     String m_ciphers;
