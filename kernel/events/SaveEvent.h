@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ public:
     inline const String &path() const                       { return m_config->path(); }
     inline rapidjson::Document &doc()                       { return m_doc; }
     inline uint32_t id() const                              { return m_id; }
+
+    static bool handle(uint32_t type, IEvent *event, uint32_t id, const std::function<void(rapidjson::Document &doc)> &callback);
 
 protected:
     uint32_t type() const override                          { return SAVE; }

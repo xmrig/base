@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -81,8 +81,6 @@ void xmrig::ConsoleService::onEvent(uint32_t type, IEvent *event)
         return d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->title });
     }
 
-    if (type == IEvent::SAVE && event->data() == 0) {
-        return d->title.save(static_cast<SaveEvent *>(event)->doc());
-    }
+    SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->title.save(doc); });
 #   endif
 }

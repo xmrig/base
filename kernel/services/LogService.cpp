@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -92,8 +92,8 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return d->restartTimer();
     }
 
-    if (type == IEvent::SAVE && event->data() == 0) {
-        return d->config.save(static_cast<SaveEvent *>(event)->doc());
+    if (SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->config.save(doc); })) {
+        return;
     }
 
     if (type == IEvent::CONSOLE && (event->data() == 'v' || event->data() == 'V')) {

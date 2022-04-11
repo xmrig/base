@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 #define XMRIG_BASE_VERSION_H
 
 
-#define BASE_VER_MAJOR  0
-#define BASE_VER_MINOR  1
+#define BASE_VER_MAJOR  7
+#define BASE_VER_MINOR  0
 #define BASE_VER_PATCH  0
 
 #ifndef APP_DOMAIN
@@ -29,7 +29,7 @@
 #endif
 
 #ifndef APP_COPYRIGHT
-#   define APP_COPYRIGHT "Copyright (C) 2016-2021 xmrig.com"
+#   define APP_COPYRIGHT "Copyright (C) 2016-2022 xmrig.com"
 #endif
 
 #define XMRIG_STRINGIFY(x) #x

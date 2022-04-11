@@ -64,9 +64,7 @@ void xmrig::TlsService::onEvent(uint32_t type, IEvent *event)
         return d->create();
     }
 
-    if (type == IEvent::SAVE && event->data() == 0) {
-        return d->save(static_cast<SaveEvent *>(event)->doc());
-    }
+    SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->save(doc); });
 }
 
 
