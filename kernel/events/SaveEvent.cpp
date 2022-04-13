@@ -28,7 +28,7 @@ xmrig::SaveEvent::~SaveEvent()
 
 bool xmrig::SaveEvent::handle(uint32_t type, IEvent *event, uint32_t id, const std::function<void(rapidjson::Document &doc)> &callback)
 {
-    if (type == IEvent::SAVE && event->data() == id) {
+    if (type == SAVE && event->data() == id) {
         callback(static_cast<SaveEvent *>(event)->doc());
 
         return true;

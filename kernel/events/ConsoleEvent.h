@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,6 +35,20 @@ public:
     inline ~ConsoleEvent() override = default;
 
     inline char command() const     { return m_command; }
+
+    template<typename... Args>
+    static inline bool handle(uint32_t type, IEvent *event, Args... args)
+    {
+        if (type == CONSOLE) {
+            for (const char key : { args... }) {
+                if (static_cast<ConsoleEvent *>(event)->command() == key) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
 protected:
     uint32_t type() const override  { return CONSOLE; }

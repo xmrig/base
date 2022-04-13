@@ -23,6 +23,7 @@
 #include "base/kernel/Config.h"
 #include "base/kernel/Events.h"
 #include "base/kernel/events/ConfigEvent.h"
+#include "base/kernel/events/ConsoleEvent.h"
 #include "base/kernel/events/LogEvent.h"
 #include "base/kernel/events/PrintEvent.h"
 #include "base/kernel/events/SaveEvent.h"
@@ -96,7 +97,7 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return;
     }
 
-    if (type == IEvent::CONSOLE && (event->data() == 'v' || event->data() == 'V')) {
+    if (ConsoleEvent::handle(type, event, 'v', 'V')) {
         return d->toggleVerbose();
     }
 
