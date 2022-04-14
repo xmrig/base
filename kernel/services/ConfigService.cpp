@@ -93,6 +93,10 @@ void xmrig::ConfigService::onEvent(uint32_t type, IEvent *event)
         return d->save();
     }
 
+    if (ConsoleEvent::handle(type, event, 0x3f)) {
+        return ConsoleEvent::help("Ctrl+S", "save current configuration");
+    }
+
     if (type == IEvent::EXIT) {
         return d->main->close();
     }

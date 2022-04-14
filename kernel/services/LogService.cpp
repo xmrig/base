@@ -103,6 +103,10 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return d->toggleVerbose();
     }
 
+    if (ConsoleEvent::handle(type, event, 0x3f)) {
+        return ConsoleEvent::help("v", "toggle verbose level");
+    }
+
     if (type == IEvent::EXIT) {
         return d->timer.reset();
     }

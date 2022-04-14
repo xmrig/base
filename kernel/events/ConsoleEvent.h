@@ -50,6 +50,10 @@ public:
         return false;
     }
 
+    const char *tag() const override;
+
+    static void help(const char *key, const char *text);
+
 protected:
     uint32_t type() const override  { return CONSOLE; }
     uint64_t data() const override  { return static_cast<uint64_t>(m_command); }

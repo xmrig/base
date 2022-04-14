@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,11 +20,9 @@
 #include "base/io/log/Log.h"
 
 
-#ifdef APP_DEBUG
-const char* xmrig::Event::tag()
+const char *xmrig::Event::tag() const
 {
-    static const char* tag = CYAN_BG(CYAN_BOLD_S " event   ");
+    static const char *tag = CYAN_BG(CYAN_BOLD_S " event   ");
 
     return tag;
 }
-#endif

@@ -20,9 +20,30 @@
 #include "base/io/log/Log.h"
 
 
+namespace xmrig {
+
+
+static const char *kTag = MAGENTA_BG(WHITE_BOLD_S " console ");
+
+
+} // namespace xmrig
+
+
+const char *xmrig::ConsoleEvent::tag() const
+{
+    return kTag;
+}
+
+
+void xmrig::ConsoleEvent::help(const char *key, const char *text)
+{
+    LOG_NOTICE("%s " MAGENTA_BOLD("%-6s") " - %s", kTag, key, text);
+}
+
+
 #ifdef APP_DEBUG
 void xmrig::ConsoleEvent::print() const
 {
-    LOG_DEBUG("%s " MAGENTA_BOLD("CONSOLE") MAGENTA("<command=") CYAN("0x%x") MAGENTA(">"), tag(), command());
+    LOG_DEBUG("%s " MAGENTA("<command=") CYAN("0x%x") MAGENTA(">"), tag(), command());
 }
 #endif

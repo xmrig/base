@@ -42,10 +42,10 @@ public:
     inline uint64_t data() const override       { return 0; }
     inline void reject() override               { m_rejected = true; }
 
+    const char *tag() const override;
+
 protected:
 #   ifdef APP_DEBUG
-    static const char *tag();
-
     void print() const override {}
 #   endif
 
