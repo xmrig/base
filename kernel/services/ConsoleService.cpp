@@ -77,8 +77,8 @@ void xmrig::ConsoleService::onEvent(uint32_t type, IEvent *event)
     }
 
 #   ifdef XMRIG_OS_WIN
-    if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
-        return d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->title });
+    if (!event->isRejected() && ConfigEvent::handle(type, event, 0, [this](const IJsonReader &reader, bool) { d->apply({ reader, d->title }); })) {
+        return;
     }
 
     SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->title.save(doc); });

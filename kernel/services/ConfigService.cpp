@@ -31,12 +31,24 @@
 namespace xmrig {
 
 
+static const char *kDefaultFileName = "config.json";
+
+
 class ConfigService::Private : public IConfigListener
 {
 public:
     inline bool open(const std::vector<String> &paths)
     {
         return std::any_of(paths.cbegin(), paths.cend(), [this](const String &fileName) { return main->open(fileName); });
+    }
+
+    inline void save()
+    {
+        if (!std::static_pointer_cast<IConfig>(main)->isValid()) {
+            main->setPath(Process::locate(Process::DataLocation, kDefaultFileName));
+        }
+
+        Process::events().post<SaveEvent>(main);
     }
 
     std::shared_ptr<JsonConfig> main;
@@ -62,7 +74,7 @@ xmrig::ConfigService::ConfigService() :
     }
 
     if (d->open({
-        Process::locate(Process::DataLocation, "config.json"),
+        Process::locate(Process::DataLocation, kDefaultFileName),
 #       ifndef XMRIG_OS_WIN
         Process::locate(Process::HomeLocation,  "." APP_ID ".json"),
         Process::locate(Process::HomeLocation, ".config" XMRIG_DIR_SEPARATOR APP_ID ".json")
@@ -78,7 +90,7 @@ xmrig::ConfigService::ConfigService() :
 void xmrig::ConfigService::onEvent(uint32_t type, IEvent *event)
 {
     if (ConsoleEvent::handle(type, event, 0x13)) {
-        return Process::events().post<SaveEvent>(d->main);
+        return d->save();
     }
 
     if (type == IEvent::EXIT) {

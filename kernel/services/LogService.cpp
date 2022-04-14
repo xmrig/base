@@ -85,12 +85,14 @@ void xmrig::LogService::onEvent(uint32_t type, IEvent *event)
         return d->print(static_cast<const LogEvent *>(event));
     }
 
-    if (type == IEvent::CONFIG && event->data() == 0) {
-        if (!event->isRejected()) {
-            d->apply({ *static_cast<const ConfigEvent *>(event)->reader(), d->config });
+    if (ConfigEvent::handle(type, event, 0, [this](const IJsonReader &reader, bool valid) {
+        if (valid) {
+            d->apply({ reader, d->config });
         }
 
-        return d->restartTimer();
+        d->restartTimer();
+    })) {
+        return;
     }
 
     if (SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->config.save(doc); })) {

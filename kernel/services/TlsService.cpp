@@ -56,12 +56,14 @@ xmrig::TlsService::TlsService() :
 
 void xmrig::TlsService::onEvent(uint32_t type, IEvent *event)
 {
-    if (type == IEvent::CONFIG && event->data() == 0) {
-        if (!event->isRejected()) {
-            d->apply({ static_cast<const ConfigEvent *>(event)->reader()->getValue(TlsConfig::kField), d->config });
+    if (ConfigEvent::handle(type, event, 0, [this](const IJsonReader &reader, bool valid) {
+        if (valid) {
+            d->apply({ reader.getValue(TlsConfig::kField), d->config });
         }
 
-        return d->create();
+        d->create();
+    })) {
+        return;
     }
 
     SaveEvent::handle(type, event, 0, [this](rapidjson::Document &doc) { d->save(doc); });

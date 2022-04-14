@@ -32,7 +32,17 @@ static DnsConfig config;
 class DnsService::Private
 {
 public:
-    static inline void save(rapidjson::Document &doc)   { doc.AddMember(rapidjson::StringRef(DnsConfig::kField), config.toJSON(doc), doc.GetAllocator()); }
+    static inline void save(rapidjson::Document &doc)
+    {
+        doc.AddMember(rapidjson::StringRef(DnsConfig::kField), config.toJSON(doc), doc.GetAllocator());
+    }
+
+    static inline void read(const IJsonReader &reader, bool valid)
+    {
+        if (valid) {
+            apply({ reader.getObject(DnsConfig::kField), config });
+        }
+    }
 
     static void apply(const DnsConfig &next);
 };
@@ -55,8 +65,8 @@ xmrig::DnsService::DnsService()
 
 void xmrig::DnsService::onEvent(uint32_t type, IEvent *event)
 {
-    if (type == IEvent::CONFIG && event->data() == 0 && !event->isRejected()) {
-        return Private::apply({ static_cast<const ConfigEvent *>(event)->reader()->getObject(DnsConfig::kField), config });
+    if (ConfigEvent::handle(type, event, 0, Private::read)) {
+        return;
     }
 
     SaveEvent::handle(type, event, 0, Private::save);

@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -93,6 +93,12 @@ bool xmrig::JsonConfig::open(const String &fileName)
 void xmrig::JsonConfig::close()
 {
     m_watcher.reset();
+}
+
+
+void xmrig::JsonConfig::setPath(const String &path)
+{
+    m_path = path;
 }
 
 

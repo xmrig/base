@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2016-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2016-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
 
 #include "base/kernel/events/ConfigEvent.h"
 #include "base/io/log/Log.h"
+
+
+bool xmrig::ConfigEvent::handle(uint32_t type, IEvent *event, uint32_t id, const std::function<void(const IJsonReader &reader, bool valid)> &callback)
+{
+    if (type == CONFIG && event->data() == id) {
+        callback(*static_cast<ConfigEvent *>(event)->reader(), !event->isRejected());
+
+        return true;
+    }
+
+    return false;
+}
 
 
 #ifdef APP_DEBUG
