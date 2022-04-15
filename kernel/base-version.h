@@ -19,10 +19,8 @@
 #ifndef XMRIG_BASE_VERSION_H
 #define XMRIG_BASE_VERSION_H
 
-
-#define BASE_VER_MAJOR  7
-#define BASE_VER_MINOR  0
-#define BASE_VER_PATCH  0
+// The base version in the form major * 10000 + minor * 100 + patch.
+#define XMRIG_BASE_VERSION 70000
 
 #ifndef APP_DOMAIN
 #   define APP_DOMAIN    "xmrig.com"
@@ -47,8 +45,5 @@
 #else
 #   define APP_VERSION XMRIG_TOSTRING(APP_VER_MAJOR.APP_VER_MINOR.APP_VER_PATCH)
 #endif
-
-#define BASE_VERSION XMRIG_TOSTRING(BASE_VER_MAJOR.BASE_VER_MINOR.BASE_VER_PATCH)
-
 
 #endif // XMRIG_BASE_VERSION_H

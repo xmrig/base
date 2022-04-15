@@ -18,6 +18,7 @@
 
 #include "base/net/tls/TlsGen.h"
 #include "base/io/log/Log.h"
+#include "version.h"
 
 
 #include <openssl/ssl.h>
@@ -105,7 +106,9 @@ void xmrig::TlsGen::generate(const char *commonName)
         throw std::runtime_error("unable to write certificate to disk.");
     }
 
+#   if defined(XMRIG_BASE_VERSION)
     LOG_NOTICE("%s " MAGENTA_BOLD("generated") WHITE_BOLD(" \"%s/%s\" ") "CN=" WHITE_BOLD("\"%s\""), tls_tag(), m_cert.data(), m_certKey.data(), cn());
+#   endif
 }
 
 

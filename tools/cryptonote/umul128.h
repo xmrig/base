@@ -25,6 +25,9 @@
 #define XMRIG_UMUL128_H
 
 
+#include "version.h"
+
+
 #include <cstdint>
 
 
@@ -66,6 +69,11 @@ static inline uint64_t xmrig_umul128(uint64_t multiplier, uint64_t multiplicand,
 
     return product_lo;
 }
+#endif
+
+
+#if !defined(XMRIG_BASE_VERSION)
+#   define __umul128 xmrig_umul128
 #endif
 
 

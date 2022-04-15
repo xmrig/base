@@ -120,7 +120,7 @@ const char *kPq                     = "pq";
 xmrig::Versions::Versions()
 {
     m_data.insert({ kApp,           APP_VERSION });
-    m_data.insert({ kBase,          BASE_VERSION });
+    m_data.insert({ kBase,          fmt::format("{}.{}.{}", XMRIG_BASE_VERSION / 10000, XMRIG_BASE_VERSION / 100 % 100, XMRIG_BASE_VERSION % 100).c_str() });
     m_data.insert({ kUv,            uv_version_string() });
     m_data.insert({ kRapidjson,     RAPIDJSON_VERSION_STRING });
     m_data.insert({ kFmt,           fmt::format("{}.{}.{}", FMT_VERSION / 10000, FMT_VERSION / 100 % 100, FMT_VERSION % 100).c_str() });
