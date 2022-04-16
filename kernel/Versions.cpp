@@ -161,8 +161,8 @@ xmrig::Versions::Versions()
     m_data.insert({ kSqlite,        sqlite3_libversion() });
 #   endif
 
-#   ifdef XMRIG_FEATURE_HWLOC
-//    m_data.insert({ kHwloc,         String(Cpu::info()->backend()).split('/')[1] }); // FIXME
+#   if defined(XMRIG_FEATURE_HWLOC) && defined(XMRIG_LEGACY)
+    m_data.insert({ kHwloc,         String(Cpu::info()->backend()).split('/')[1] });
 #   endif
 
 #   ifdef XMRIG_FEATURE_POSTGRESQL

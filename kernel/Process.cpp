@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,13 +23,17 @@
 
 #include "base/kernel/Process.h"
 #include "3rdparty/fmt/core.h"
-#include "base/kernel/Events.h"
-#include "base/kernel/events/ExitEvent.h"
 #include "base/kernel/OS.h"
 #include "base/kernel/Versions.h"
 #include "base/tools/Arguments.h"
 #include "base/tools/Chrono.h"
 #include "version.h"
+
+
+#ifndef XMRIG_LEGACY
+#   include "base/kernel/Events.h"
+#   include "base/kernel/events/ExitEvent.h"
+#endif
 
 
 #ifdef XMRIG_FEATURE_TLS
@@ -86,11 +90,15 @@ public:
 
     Arguments arguments;
     const char *version = APP_VERSION;
-    Events events;
+
     int exitCode        = 0;
     String dataDir;
     String userAgent;
     Versions versions;
+
+#   ifndef XMRIG_LEGACY
+    Events events;
+#   endif
 };
 
 
@@ -164,12 +172,6 @@ const xmrig::String &xmrig::Process::userAgent()
 const xmrig::Versions &xmrig::Process::versions()
 {
     return d_fn()->versions;
-}
-
-
-xmrig::Events &xmrig::Process::events()
-{
-    return d_fn()->events;
 }
 
 
@@ -254,7 +256,9 @@ void xmrig::Process::exit(int code)
         d_fn()->exitCode = code;
     }
 
+#   ifndef XMRIG_LEGACY
     events().post<ExitEvent>(exitCode());
+#   endif
 }
 
 
@@ -262,6 +266,14 @@ void xmrig::Process::setUserAgent(const String &userAgent)
 {
     d_fn()->userAgent = userAgent;
 }
+
+
+#ifndef XMRIG_LEGACY
+xmrig::Events &xmrig::Process::events()
+{
+    return d_fn()->events;
+}
+#endif
 
 
 xmrig::Process::Private *xmrig::Process::d_fn()

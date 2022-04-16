@@ -1,8 +1,8 @@
 /* XMRig
  * Copyright (c) 2012-2013 The Cryptonote developers
  * Copyright (c) 2014-2021 The Monero Project
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,11 @@
 
 extern "C" {
 
-#include "3rdparty/cryptonote/crypto-ops.h"
+#ifdef XMRIG_LEGACY
+#   include "base/tools/cryptonote/crypto-ops.h"
+#else
+#   include "3rdparty/cryptonote/crypto-ops.h"
+#endif
 
 }
 
