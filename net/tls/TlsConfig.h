@@ -52,7 +52,9 @@ public:
 
     TlsConfig() = default;
     TlsConfig(const Arguments &arguments);
-    TlsConfig(const rapidjson::Value &value, const TlsConfig &current);
+
+    inline TlsConfig(const rapidjson::Value &value, const TlsConfig &current)   { init(value, current); }
+    inline TlsConfig(const rapidjson::Value &value)                             { init(value, {}); }
 
     inline bool isEnabled() const                           { return m_enabled; }
     inline bool isValid() const                             { return !m_cert.isEmpty() && !m_key.isEmpty(); }
@@ -72,6 +74,7 @@ public:
     void print() const;
 
 private:
+    void init(const rapidjson::Value &value, const TlsConfig &current);
     void setProtocols(const char *protocols);
     void setProtocols(const rapidjson::Value &protocols);
 

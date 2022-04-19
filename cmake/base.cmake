@@ -20,6 +20,7 @@
 #option(HWLOC_DEBUG          "Enable hwloc debug helpers and log" OFF)
 #option(WITH_COM             "Enable Windows COM support" ON)
 #option(WITH_DEPRECATED      "Enable deprecated config format support" ON)
+#option(WITH_EVENTS          "Enable new internal events based architecture" ON)
 
 add_definitions(-D__STDC_FORMAT_MACROS -DUNICODE -D_FILE_OFFSET_BITS=64 -DXMRIG_JSON_SINGLE_LINE_ARRAY)
 
@@ -47,5 +48,6 @@ include(option/cryptonote)
 include(option/algorithms)
 include(option/benchmark)
 include(option/env)
+include(option/events)
 include(option/syslog)
 include(option/com)

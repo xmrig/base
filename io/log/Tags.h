@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,10 +30,16 @@ namespace xmrig {
 class Tags
 {
 public:
+#   ifdef XMRIG_LEGACY
+    static const char *config();
+    static const char *signal();
+#   endif
+
     static const char *network();
     static const char *origin();
 
 #   ifdef XMRIG_MINER_PROJECT
+    static const char *cpu();
     static const char *miner();
 #   ifdef XMRIG_ALGO_RANDOMX
     static const char *randomx();
@@ -45,6 +51,14 @@ public:
 
 #   ifdef XMRIG_PROXY_PROJECT
     static const char *proxy();
+#   endif
+
+#   ifdef XMRIG_FEATURE_CUDA
+    static const char *nvidia();
+#   endif
+
+#   ifdef XMRIG_FEATURE_OPENCL
+    static const char *opencl();
 #   endif
 
 #   ifdef XMRIG_FEATURE_PROFILING

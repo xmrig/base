@@ -27,7 +27,7 @@
 
 xmrig::HttpsContext::HttpsContext(TlsContext *tls, const std::weak_ptr<IHttpListener> &listener) :
     HttpContext(HTTP_REQUEST, listener),
-    ServerTls(tls ? tls->handle() : nullptr) // FIXME
+    ServerTls(tls ? tls->handle() : nullptr)
 {
     if (!tls) {
         m_mode = TLS_OFF;

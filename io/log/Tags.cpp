@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,42 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "base/io/log/Tags.h"
 #include "base/io/log/Log.h"
+
+
+#ifndef XMRIG_FEATURE_EVENTS
+namespace xmrig {
+
+
+const char *tls_tag()
+{
+    static const char *tag = GREEN_BG_BOLD(WHITE_BOLD_S " tls     ");
+
+    return tag;
+}
+
+
+} // namespace xmrig
+#endif
+
+
+#ifdef XMRIG_LEGACY
+const char *xmrig::Tags::config()
+{
+    static const char *tag = CYAN_BG_BOLD(WHITE_BOLD_S " config  ");
+
+    return tag;
+}
+
+
+const char *xmrig::Tags::signal()
+{
+    static const char *tag = YELLOW_BG_BOLD(WHITE_BOLD_S " signal  ");
+
+    return tag;
+}
+#endif
 
 
 const char *xmrig::Tags::network()
@@ -38,6 +71,14 @@ const char* xmrig::Tags::origin()
 
 
 #ifdef XMRIG_MINER_PROJECT
+const char *xmrig::Tags::cpu()
+{
+    static const char *tag = CYAN_BG_BOLD(WHITE_BOLD_S " cpu     ");
+
+    return tag;
+}
+
+
 const char *xmrig::Tags::miner()
 {
     static const char *tag = MAGENTA_BG_BOLD(WHITE_BOLD_S " miner   ");
@@ -71,6 +112,26 @@ const char *xmrig::Tags::bench()
 const char *xmrig::Tags::proxy()
 {
     static const char *tag = MAGENTA_BG_BOLD(WHITE_BOLD_S " proxy   ");
+
+    return tag;
+}
+#endif
+
+
+#ifdef XMRIG_FEATURE_CUDA
+const char *xmrig::Tags::nvidia()
+{
+    static const char *tag = GREEN_BG_BOLD(WHITE_BOLD_S " nvidia  ");
+
+    return tag;
+}
+#endif
+
+
+#ifdef XMRIG_FEATURE_OPENCL
+const char *xmrig::Tags::opencl()
+{
+    static const char *tag = MAGENTA_BG_BOLD(WHITE_BOLD_S " opencl  ");
 
     return tag;
 }

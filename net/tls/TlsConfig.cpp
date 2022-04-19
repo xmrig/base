@@ -61,47 +61,10 @@ xmrig::TlsConfig::TlsConfig(const Arguments &arguments)
 }
 
 
-/**
- * "cert"         load TLS certificate chain from file.
- * "cert_key"     load TLS private key from file.
- * "ciphers"      set list of available ciphers (TLSv1.2 and below).
- * "ciphersuites" set list of available TLSv1.3 ciphersuites.
- * "dhparam"      load DH parameters for DHE ciphers from file.
- */
-xmrig::TlsConfig::TlsConfig(const rapidjson::Value &value, const TlsConfig &current)
-{
-    if (value.IsObject()) {
-        setProtocols(Json::getString(value, kProtocols));
+//xmrig::TlsConfig::TlsConfig(const rapidjson::Value &value, const TlsConfig &current)
+//{
 
-        m_enabled       = Json::getBool(value, kEnabled, current.m_enabled);
-        m_cert          = Json::getString(value, kCert, current.m_cert);
-        m_key           = Json::getString(value, kCertKey, current.m_key);
-        m_ciphers       = Json::getString(value, kCiphers, current.m_ciphers);
-        m_ciphersuites  = Json::getString(value, kCipherSuites, current.m_ciphersuites);
-        m_dhparam       = Json::getString(value, kDhparam, current.m_dhparam);
-
-        if (m_key.isNull()) {
-            m_key = Json::getString(value, "cert_key", current.m_key);
-        }
-
-        if (m_enabled && !isValid()) {
-            generate(Json::getString(value, kGen));
-        }
-    }
-    else if (value.IsBool()) {
-        m_enabled = value.GetBool();
-
-        if (m_enabled) {
-            generate();
-        }
-    }
-    else if (value.IsString()) {
-        generate(value.GetString());
-    }
-    else {
-        m_enabled = false;
-    }
-}
+//}
 
 
 bool xmrig::TlsConfig::generate(const char *commonName)
@@ -197,6 +160,42 @@ void xmrig::TlsConfig::print() const
               MAGENTA(">"),
               Config::tag(), m_enabled, m_protocols, m_cert.data(), m_ciphers.data(), m_ciphersuites.data(), m_dhparam.data(), m_key.data());
 #   endif
+}
+
+
+void xmrig::TlsConfig::init(const rapidjson::Value &value, const TlsConfig &current)
+{
+    if (value.IsObject()) {
+        setProtocols(Json::getString(value, kProtocols));
+
+        m_enabled       = Json::getBool(value, kEnabled, current.m_enabled);
+        m_cert          = Json::getString(value, kCert, current.m_cert);
+        m_key           = Json::getString(value, kCertKey, current.m_key);
+        m_ciphers       = Json::getString(value, kCiphers, current.m_ciphers);
+        m_ciphersuites  = Json::getString(value, kCipherSuites, current.m_ciphersuites);
+        m_dhparam       = Json::getString(value, kDhparam, current.m_dhparam);
+
+        if (m_key.isNull()) {
+            m_key = Json::getString(value, "cert_key", current.m_key);
+        }
+
+        if (m_enabled && !isValid()) {
+            generate(Json::getString(value, kGen));
+        }
+    }
+    else if (value.IsBool()) {
+        m_enabled = value.GetBool();
+
+        if (m_enabled) {
+            generate();
+        }
+    }
+    else if (value.IsString()) {
+        generate(value.GetString());
+    }
+    else {
+        m_enabled = false;
+    }
 }
 
 

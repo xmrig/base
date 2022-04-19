@@ -34,23 +34,20 @@ xmrig::HttpsServer::HttpsServer(const std::shared_ptr<IHttpListener> &listener) 
 xmrig::HttpsServer::~HttpsServer()
 {
     HttpContext::closeAll();
-
-    delete m_tls;
 }
 
 
 bool xmrig::HttpsServer::setTls(const TlsConfig &config)
 {
-//    m_tls = TlsContext::create(config);
+    m_tls = TlsContext::create(config);
 
-//    return m_tls != nullptr;
-    return false; // FIXME
+    return m_tls != nullptr;
 }
 
 
 void xmrig::HttpsServer::onConnection(uv_stream_t *stream, uint16_t)
 {
-    auto ctx = new HttpsContext(m_tls, m_listener);
+    auto ctx = new HttpsContext(m_tls.get(), m_listener);
     uv_accept(stream, ctx->stream());
 
     uv_read_start(ctx->stream(), NetBuffer::onAlloc, onRead); // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)

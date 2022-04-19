@@ -32,17 +32,6 @@ set(HEADERS
     kernel/Config.h
     kernel/constants.h
     kernel/Entry.h
-    kernel/EventListener.h
-    kernel/Events.h
-    kernel/events/ConfigEvent.h
-    kernel/events/ConsoleEvent.h
-    kernel/events/Event.h
-    kernel/events/ExitEvent.h
-    kernel/events/IdleEvent.h
-    kernel/events/LogEvent.h
-    kernel/events/PrintEvent.h
-    kernel/events/SaveEvent.h
-    kernel/events/SignalEvent.h
     kernel/interfaces/IAsyncListener.h
     kernel/interfaces/IClient.h
     kernel/interfaces/IClientListener.h
@@ -67,12 +56,6 @@ set(HEADERS
     kernel/private/DnsConfig.h
     kernel/private/LogConfig.h
     kernel/Process.h
-    kernel/Service.h
-    kernel/services/ConfigService.h
-    kernel/services/ConsoleService.h
-    kernel/services/DnsService.h
-    kernel/services/LogService.h
-    kernel/services/SignalService.h
     kernel/Versions.h
     net/dns/Dns.h
     net/dns/DnsRecord.h
@@ -133,20 +116,12 @@ set(SOURCES
     kernel/App.cpp
     kernel/Config.cpp
     kernel/Entry.cpp
-    kernel/EventListener.cpp
-    kernel/Events.cpp
-    kernel/events/SaveEvent.cpp
     kernel/Lib.cpp
     kernel/OS.cpp
     kernel/private/DnsConfig.cpp
     kernel/private/LogConfig.cpp
     kernel/private/Title.cpp
     kernel/Process.cpp
-    kernel/services/ConfigService.cpp
-    kernel/services/ConsoleService.cpp
-    kernel/services/DnsService.cpp
-    kernel/services/LogService.cpp
-    kernel/services/SignalService.cpp
     kernel/Versions.cpp
     net/dns/Dns.cpp
     net/dns/DnsRecord.cpp
@@ -172,6 +147,39 @@ set(SOURCES
     tools/String.cpp
     tools/Timer.cpp
     )
+
+if (WITH_EVENTS)
+    list(APPEND HEADERS
+        kernel/EventListener.h
+        kernel/Events.h
+        kernel/events/ConfigEvent.h
+        kernel/events/ConsoleEvent.h
+        kernel/events/Event.h
+        kernel/events/ExitEvent.h
+        kernel/events/IdleEvent.h
+        kernel/events/LogEvent.h
+        kernel/events/PrintEvent.h
+        kernel/events/SaveEvent.h
+        kernel/events/SignalEvent.h
+        kernel/Service.h
+        kernel/services/ConfigService.h
+        kernel/services/ConsoleService.h
+        kernel/services/DnsService.h
+        kernel/services/LogService.h
+        kernel/services/SignalService.h
+        )
+
+    list(APPEND SOURCES
+        kernel/EventListener.cpp
+        kernel/Events.cpp
+        kernel/events/SaveEvent.cpp
+        kernel/services/ConfigService.cpp
+        kernel/services/ConsoleService.cpp
+        kernel/services/DnsService.cpp
+        kernel/services/LogService.cpp
+        kernel/services/SignalService.cpp
+        )
+endif()
 
 if (WITH_DEBUG_LOG)
     list(APPEND SOURCES
