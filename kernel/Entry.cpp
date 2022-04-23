@@ -18,6 +18,7 @@
 
 #include "base/kernel/Entry.h"
 #include "base/io/log/Log.h"
+#include "base/kernel/OS.h"
 #include "base/kernel/Process.h"
 #include "base/kernel/Versions.h"
 #include "base/tools/Arguments.h"
@@ -26,6 +27,11 @@
 
 #include <iostream>
 
+
+#ifdef XMRIG_FEATURE_OPENCL
+#   include "backend/opencl/wrappers/OclLib.h"
+#   include "backend/opencl/wrappers/OclPlatform.h"
+#endif
 
 #ifdef XMRIG_FEATURE_HWLOC
 #   include <hwloc.h>
@@ -37,13 +43,27 @@ namespace xmrig {
 
 static bool showVersion(int &/*rc*/)
 {
-    if (Process::arguments().contains("-V", "--version")) {
-        std::cout << "v" << Process::version() << std::endl;
-
-        return true;
+    if (!Process::arguments().contains("-V", "--version")) {
+        return false;
     }
 
-    return false;
+    std::cout << APP_NAME " v" << Process::version() << std::endl
+              << " built on " __DATE__ " with " << Versions::kCompiler << "/" << Process::versions().get(Versions::kCompiler)
+              << " (" << OS::arch << ")" << std::endl;
+
+#   ifdef XMRIG_LEGACY
+    std::cout << std::endl << "uv/" << Process::versions().get(Versions::kUv) << std::endl;
+
+#   ifdef XMRIG_FEATURE_TLS
+    std::cout << Versions::kTls << "/" << Process::versions().get(Versions::kTls) << std::endl;
+#   endif
+
+#   ifdef XMRIG_FEATURE_HWLOC
+    std::cout << "hwloc/" << Process::versions().get(Versions::kHwloc) << std::endl;
+#   endif
+#   endif
+
+    return true;
 }
 
 
@@ -51,7 +71,7 @@ static bool showVersions(int &/*rc*/)
 {
     if (Process::arguments().contains("--versions")) {
         for (const auto &kv : Process::versions().get()) {
-            std::cout << kv.first << "/" << kv.second << "\n";
+            std::cout << kv.first << "/" << kv.second << std::endl;;
         }
 
         return true;
@@ -127,6 +147,8 @@ xmrig::Entry::Entry(const Usage &usage)
 
         std::cout << "Usage: " APP_ID " [OPTIONS]\n";
         std::cout << usage();
+
+#       ifndef XMRIG_LEGACY
         std::cout << "\nBase:\n";
         std::cout << "  -h, --help                    print this help and exit\n";
         std::cout << "  -V, --version                 print " APP_ID " version and exit\n";
@@ -155,9 +177,24 @@ xmrig::Entry::Entry(const Usage &usage)
 #       ifdef XMRIG_FEATURE_HWLOC
         std::cout << "      --export-topology         export hwloc topology to a XML file and exit\n";
 #       endif
+#       endif
 
         return true;
     });
+
+#   ifdef XMRIG_FEATURE_OPENCL
+    add([](int &/*rc*/) {
+        if (Process::arguments().contains("--print-platforms")) {
+            if (OclLib::init()) {
+                OclPlatform::print();
+            }
+
+            return true;
+        }
+
+        return false;
+    });
+#   endif
 
     add([](int &rc) {
         if (Process::arguments().contains("-B", "--background")) {
