@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -14,33 +14,50 @@
  *
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
  */
 
 #include "base/io/Console.h"
 #include "base/io/log/Log.h"
 #include "base/io/Signals.h"
-#include "base/kernel/Events.h"
-#include "base/kernel/events/ConsoleEvent.h"
+#include "base/kernel/interfaces/IConsoleListener.h"
 #include "base/kernel/private/Title.h"
 #include "base/kernel/Process.h"
 #include "base/tools/Cvt.h"
 #include "base/tools/Handle.h"
 
 
+#ifdef XMRIG_FEATURE_EVENTS
+#   include "base/kernel/Events.h"
+#   include "base/kernel/events/ConsoleEvent.h"
+#endif
+
+
 namespace xmrig {
 
 
-class Console::Private
+class Console::Private : public IConsoleListener
 {
 public:
     XMRIG_DISABLE_COPY_MOVE(Private)
 
     Private();
-    ~Private();
+    ~Private() override;
 
 #   ifdef XMRIG_OS_WIN
     std::wstring title;
 #   endif
+
+    IConsoleListener *listener = nullptr;
+
+protected:
+    void onConsoleCommand(char command) override;
 
 private:
     static bool isSupported();
@@ -59,6 +76,14 @@ private:
 xmrig::Console::Console() :
     d(std::make_shared<Private>())
 {
+    d->listener = d.get();
+}
+
+
+xmrig::Console::Console(IConsoleListener *listener) :
+    d(std::make_shared<Private>())
+{
+    d->listener = listener;
 }
 
 
@@ -106,6 +131,23 @@ xmrig::Console::Private::~Private()
 }
 
 
+void xmrig::Console::Private::onConsoleCommand(char command)
+{
+#   ifdef XMRIG_FEATURE_EVENTS
+    if (command == 3) {
+        LOG_WARN("%s " YELLOW_BOLD("Ctrl+C ") YELLOW("received, exiting"), Signals::tag());
+
+        Process::exit(0);
+    }
+    else {
+        Process::events().send<ConsoleEvent>(command);
+    }
+#   else
+    assert(!command);
+#   endif            
+}
+
+
 bool xmrig::Console::Private::isSupported()
 {
     const uv_handle_type type = uv_guess_handle(0);
@@ -128,14 +170,6 @@ void xmrig::Console::Private::onRead(uv_stream_t *stream, ssize_t nread, const u
     }
 
     if (nread == 1) {
-        const char command = *buf->base;
-        if (*buf->base == 3) {
-            LOG_WARN("%s " YELLOW_BOLD("Ctrl+C ") YELLOW("received, exiting"), Signals::tag());
-
-            Process::exit(0);
-        }
-        else {
-            Process::events().send<ConsoleEvent>(command);
-        }
+        static_cast<Private *>(stream->data)->listener->onConsoleCommand(*buf->base);
     }
 }
