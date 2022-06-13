@@ -1,7 +1,7 @@
 /* XMRig
  * Copyright (c) 2019      Spudz76     <https://github.com/Spudz76>
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,6 +15,13 @@
  *
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
  */
 
 #ifdef XMRIG_OS_WIN
@@ -29,14 +36,21 @@
 #include <cstring>
 #include <ctime>
 #include <mutex>
+#include <vector>
 
 
 #include "base/io/log/Log.h"
-#include "base/kernel/Events.h"
-#include "base/kernel/events/LogEvent.h"
-#include "base/kernel/private/LogConfig.h"
-#include "base/kernel/Process.h"
 #include "base/tools/Chrono.h"
+
+
+#ifdef XMRIG_FEATURE_EVENTS
+#   include "base/kernel/Events.h"
+#   include "base/kernel/events/LogEvent.h"
+#   include "base/kernel/private/LogConfig.h"
+#   include "base/kernel/Process.h"
+#else
+#   include "base/kernel/interfaces/ILogBackend.h"
+#endif
 
 
 namespace xmrig {
@@ -44,6 +58,7 @@ namespace xmrig {
 
 bool Log::m_background      = false;
 bool Log::m_colors          = true;
+LogPrivate *Log::d          = nullptr;
 uint32_t Log::m_verbose     = 0;
 
 
@@ -138,7 +153,7 @@ static uint64_t log_timestamp(Log::Level level, size_t &size, size_t &offset)
 }
 
 
-
+#ifdef XMRIG_FEATURE_EVENTS
 static void log_print(Log::Level level, const char *fmt, va_list args)
 {
     size_t size   = 0;
@@ -159,17 +174,114 @@ static void log_print(Log::Level level, const char *fmt, va_list args)
 
     Process::events().post<LogEvent>(ts, level, buf, offset, size);
 }
+#else
+class LogPrivate
+{
+public:
+    XMRIG_DISABLE_COPY_MOVE(LogPrivate)
+
+
+    LogPrivate() = default;
+
+
+    inline ~LogPrivate()
+    {
+        for (auto backend : backends) {
+            delete backend;
+        }
+    }
+
+
+    void print(Log::Level level, const char *fmt, va_list args)
+    {
+        size_t size   = 0;
+        size_t offset = 0;
+
+        std::lock_guard<std::mutex> lock(mutex);
+
+        if (Log::isBackground() && backends.empty()) {
+            return;
+        }
+
+        const uint64_t ts = log_timestamp(level, size, offset);
+        log_color(level, size);
+
+        const int rc = vsnprintf(buf + size, sizeof (buf) - offset - 32, fmt, args);
+        if (rc < 0) {
+            return;
+        }
+
+        size += std::min(static_cast<size_t>(rc), sizeof (buf) - offset - 32);
+        log_endl(size);
+
+        std::string txt(buf);
+        size_t i = 0;
+        while ((i = txt.find(CSI)) != std::string::npos) {
+            txt.erase(i, txt.find('m', i) - i + 1);
+        }
+
+        if (!backends.empty()) {
+            for (auto backend : backends) {
+                backend->print(ts, level, buf, offset, size, true);
+                backend->print(ts, level, txt.c_str(), offset ? (offset - 11) : 0, txt.size(), false);
+            }
+        }
+        else {
+            fputs(txt.c_str(), stdout);
+            fflush(stdout);
+        }
+    }
+
+
+    std::vector<ILogBackend*> backends;
+};
+#endif
 
 
 } // namespace xmrig
 
 
+#ifndef XMRIG_FEATURE_EVENTS
+void xmrig::Log::add(ILogBackend *backend)
+{
+    assert(d != nullptr);
+
+    if (d) {
+        d->backends.push_back(backend);
+    }
+}
+
+
+void xmrig::Log::destroy()
+{
+    delete d;
+    d = nullptr;
+}
+
+
+void xmrig::Log::init()
+{
+    d = new LogPrivate();
+}
+#endif
+
+
 void xmrig::Log::print(const char *fmt, ...)
 {
+#   ifndef XMRIG_FEATURE_EVENTS
+    if (!d) {
+        return;
+    }
+#   endif
+
     va_list args{};
     va_start(args, fmt);
 
+#   ifdef XMRIG_FEATURE_EVENTS
     log_print(NONE, fmt, args);
+#   else
+    d->print(NONE, fmt, args);
+#   endif
 
     va_end(args);
 }
@@ -177,10 +289,20 @@ void xmrig::Log::print(const char *fmt, ...)
 
 void xmrig::Log::print(Level level, const char *fmt, ...)
 {
+#   ifndef XMRIG_FEATURE_EVENTS
+    if (!d) {
+        return;
+    }
+#   endif
+
     va_list args{};
     va_start(args, fmt);
 
+#   ifdef XMRIG_FEATURE_EVENTS
     log_print(level, fmt, args);
+#   else
+    d->print(level, fmt, args);
+#   endif
 
     va_end(args);
 }
@@ -188,5 +310,12 @@ void xmrig::Log::print(Level level, const char *fmt, ...)
 
 void xmrig::Log::setVerbose(uint32_t verbose)
 {
-    m_verbose = std::min(verbose, static_cast<uint32_t>(LogConfig::kMaxVerbose));
+    static constexpr uint32_t kMaxVerbose =
+#   ifdef XMRIG_FEATURE_EVENTS
+    LogConfig::kMaxVerbose;
+#   else
+    5U;
+#   endif
+
+    m_verbose = std::min(verbose, kMaxVerbose);
 }
