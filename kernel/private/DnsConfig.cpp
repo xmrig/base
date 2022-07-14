@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,6 +37,11 @@ namespace xmrig {
 const char *DnsConfig::kField   = "dns";
 const char *DnsConfig::kIPv6    = "ipv6";
 const char *DnsConfig::kTTL     = "ttl";
+
+
+#ifndef XMRIG_FEATURE_EVENTS
+static DnsConfig config;
+#endif
 
 
 } // namespace xmrig
@@ -86,3 +91,17 @@ void xmrig::DnsConfig::print() const
               Config::tag(), m_ipv6, m_ttl);
 #   endif
 }
+
+
+#ifndef XMRIG_FEATURE_EVENTS
+const xmrig::DnsConfig &xmrig::DnsConfig::current()
+{
+    return config;
+}
+
+
+void xmrig::DnsConfig::set(const rapidjson::Value &value)
+{
+    config = { value, config };
+}
+#endif
