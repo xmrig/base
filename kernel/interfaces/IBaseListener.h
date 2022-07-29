@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2021 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,33 +16,32 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef XMRIG_ICONFIGLISTENER_H
-#define XMRIG_ICONFIGLISTENER_H
+#ifndef XMRIG_IBASELISTENER_H
+#define XMRIG_IBASELISTENER_H
 
 
-#include "3rdparty/rapidjson/fwd.h"
 #include "base/tools/Object.h"
 
 
 namespace xmrig {
 
 
-class IConfig;
+class Config;
 
 
-class IConfigListener
+class IBaseListener
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE(IConfigListener)
+    XMRIG_DISABLE_COPY_MOVE(IBaseListener)
 
-    IConfigListener()           = default;
-    virtual ~IConfigListener()  = default;
+    IBaseListener()             = default;
+    virtual ~IBaseListener()    = default;
 
-    virtual void onConfig(IConfig *config, rapidjson::Document &doc)    = 0;
+    virtual void onConfigChanged(Config *config, Config *previousConfig) = 0;
 };
 
 
-} // namespace xmrig
+} /* namespace xmrig */
 
 
-#endif // XMRIG_ICONFIGLISTENER_H
+#endif // XMRIG_IBASELISTENER_H

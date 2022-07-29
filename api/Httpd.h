@@ -20,6 +20,7 @@
 #define XMRIG_HTTPD_H
 
 
+#include "base/kernel/interfaces/IBaseListener.h"
 #include "base/net/http/HttpListener.h"
 #include "base/tools/Object.h"
 
@@ -37,7 +38,7 @@ class HttpsServer;
 class TcpServer;
 
 
-class Httpd : public IHttpListener
+class Httpd : public IBaseListener, public IHttpListener
 {
 public:
     XMRIG_DISABLE_COPY_MOVE_DEFAULT(Httpd)
@@ -49,7 +50,7 @@ public:
     void stop();
 
 protected:
-//    void onConfigChanged(Config *config, Config *previousConfig) override;
+    void onConfigChanged(Config *config, Config *previousConfig) override;
     void onHttpData(const HttpData &data) override;
 
 private:

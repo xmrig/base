@@ -1,6 +1,6 @@
 /* XMRig
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@
 #include "base/crypto/keccak.h"
 #include "base/io/Env.h"
 #include "base/io/json/Json.h"
-//#include "base/kernel/Base.h"
+#include "base/kernel/Base.h"
+#include "base/kernel/OS.h"
 #include "base/tools/Chrono.h"
 #include "base/tools/Cvt.h"
-//#include "core/config/Config.h"
-//#include "core/Controller.h"
+#include "core/config/Config.h"
+#include "core/Controller.h"
 #include "version.h"
-#include "base/kernel/OS.h"
 
 
 #ifdef XMRIG_FEATURE_HTTP
@@ -83,9 +83,9 @@ xmrig::Api::Api(Base *base) :
     m_base(base),
     m_timestamp(Chrono::currentMSecsSinceEpoch())
 {
-//    base->addListener(this);
+    base->addListener(this);
 
-//    genId(base->config()->apiId());
+    genId(base->config()->apiId());
 }
 
 
@@ -99,15 +99,15 @@ xmrig::Api::~Api()
 
 void xmrig::Api::request(const HttpData &req)
 {
-//    HttpApiRequest request(req, m_base->config()->http().isRestricted());
+    HttpApiRequest request(req, m_base->config()->http().isRestricted());
 
-//    exec(request);
+    exec(request);
 }
 
 
 void xmrig::Api::start()
 {
-//    genWorkerId(m_base->config()->apiWorkerId());
+    genWorkerId(m_base->config()->apiWorkerId());
 
 #   ifdef XMRIG_FEATURE_HTTP
     m_httpd = new Httpd(m_base);
@@ -124,16 +124,16 @@ void xmrig::Api::stop()
 }
 
 
-//void xmrig::Api::onConfigChanged(Config *config, Config *previousConfig)
-//{
-//    if (config->apiId() != previousConfig->apiId()) {
-//        genId(config->apiId());
-//    }
+void xmrig::Api::onConfigChanged(Config *config, Config *previousConfig)
+{
+    if (config->apiId() != previousConfig->apiId()) {
+        genId(config->apiId());
+    }
 
-//    if (config->apiWorkerId() != previousConfig->apiWorkerId()) {
-//        genWorkerId(config->apiWorkerId());
-//    }
-//}
+    if (config->apiWorkerId() != previousConfig->apiWorkerId()) {
+        genWorkerId(config->apiWorkerId());
+    }
+}
 
 
 void xmrig::Api::exec(IApiRequest &request)
@@ -156,7 +156,7 @@ void xmrig::Api::exec(IApiRequest &request)
 #       ifdef XMRIG_FEATURE_API
         features.PushBack("api", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_ASM // FIXME
+#       ifdef XMRIG_FEATURE_ASM
         features.PushBack("asm", allocator);
 #       endif
 #       ifdef XMRIG_FEATURE_HTTP
@@ -168,10 +168,10 @@ void xmrig::Api::exec(IApiRequest &request)
 #       ifdef XMRIG_FEATURE_TLS
         features.PushBack("tls", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_OPENCL // FIXME
+#       ifdef XMRIG_FEATURE_OPENCL
         features.PushBack("opencl", allocator);
 #       endif
-#       ifdef XMRIG_FEATURE_CUDA // FIXME
+#       ifdef XMRIG_FEATURE_CUDA
         features.PushBack("cuda", allocator);
 #       endif
         reply.AddMember("features", features, allocator);
@@ -205,25 +205,25 @@ void xmrig::Api::genId(const String &id)
         return;
     }
 
-//    for (int i = 0; i < count; i++) {
-//        if (!interfaces[i].is_internal && interfaces[i].address.address4.sin_family == AF_INET) {
-//            uint8_t hash[200];
-//            const size_t addrSize = sizeof(interfaces[i].phys_addr);
-//            const size_t inSize   = (sizeof(APP_KIND) - 1) + addrSize + sizeof(uint16_t);
-//            const auto port       = static_cast<uint16_t>(m_base->config()->http().port());
+    for (int i = 0; i < count; i++) {
+        if (!interfaces[i].is_internal && interfaces[i].address.address4.sin_family == AF_INET) {
+            uint8_t hash[200];
+            const size_t addrSize = sizeof(interfaces[i].phys_addr);
+            const size_t inSize   = (sizeof(APP_KIND) - 1) + addrSize + sizeof(uint16_t);
+            const auto port       = static_cast<uint16_t>(m_base->config()->http().port());
 
-//            auto *input = new uint8_t[inSize]();
-//            memcpy(input, &port, sizeof(uint16_t));
-//            memcpy(input + sizeof(uint16_t), interfaces[i].phys_addr, addrSize);
-//            memcpy(input + sizeof(uint16_t) + addrSize, APP_KIND, (sizeof(APP_KIND) - 1));
+            auto *input = new uint8_t[inSize]();
+            memcpy(input, &port, sizeof(uint16_t));
+            memcpy(input + sizeof(uint16_t), interfaces[i].phys_addr, addrSize);
+            memcpy(input + sizeof(uint16_t) + addrSize, APP_KIND, (sizeof(APP_KIND) - 1));
 
-//            keccak(input, inSize, hash);
-//            Cvt::toHex(m_id, sizeof(m_id), hash, 8);
+            keccak(input, inSize, hash);
+            Cvt::toHex(m_id, sizeof(m_id), hash, 8);
 
-//            delete [] input;
-//            break;
-//        }
-//    }
+            delete [] input;
+            break;
+        }
+    }
 
     uv_free_interface_addresses(interfaces, count);
 }
