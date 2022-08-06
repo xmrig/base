@@ -30,7 +30,7 @@ namespace xmrig {
 class Tags
 {
 public:
-#   ifdef XMRIG_LEGACY
+#   ifndef XMRIG_FEATURE_EVENTS
     static const char *config();
     static const char *signal();
 #   endif

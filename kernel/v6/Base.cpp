@@ -66,14 +66,14 @@ namespace xmrig {
 class BasePrivate
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE_DEFAULT(BasePrivate)
+    XMRIG_DISABLE_COPY_MOVE(BasePrivate)
 
 
-    inline explicit BasePrivate(Process *process)
+    inline explicit BasePrivate()
     {
         Log::init();
 
-        config = load(process);
+        config = load();
     }
 
 
@@ -118,13 +118,13 @@ public:
 
 
 private:
-    inline static Config *load(Process *process)
+    inline static Config *load()
     {
         JsonChain chain;
         ConfigTransform transform;
         std::unique_ptr<Config> config;
 
-        ConfigTransform::load(chain, process, transform);
+        ConfigTransform::load(chain, transform);
 
         if (read(chain, config)) {
             return config.release();
@@ -161,8 +161,8 @@ private:
 } // namespace xmrig
 
 
-xmrig::Base::Base(Process *process)
-    : d_ptr(new BasePrivate(process))
+xmrig::Base::Base()
+    : d_ptr(new BasePrivate())
 {
 }
 

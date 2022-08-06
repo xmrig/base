@@ -18,7 +18,6 @@ set(HEADERS
     io/Env.h
     io/json/Json.h
     io/json/JsonChain.h
-    io/json/JsonConfig.h
     io/json/JsonRequest.h
     io/log/backends/ConsoleLog.h
     io/log/backends/FileLog.h
@@ -27,9 +26,7 @@ set(HEADERS
     io/log/Tags.h
     io/Signals.h
     io/Watcher.h
-    kernel/App.h
     kernel/base-version.h
-    kernel/Config.h
     kernel/constants.h
     kernel/Entry.h
     kernel/interfaces/IAsyncListener.h
@@ -104,7 +101,6 @@ set(SOURCES
     io/Env.cpp
     io/json/Json.cpp
     io/json/JsonChain.cpp
-    io/json/JsonConfig.cpp
     io/json/JsonRequest.cpp
     io/log/backends/ConsoleLog.cpp
     io/log/backends/FileLog.cpp
@@ -113,8 +109,6 @@ set(SOURCES
     io/log/Tags.cpp
     io/Signals.cpp
     io/Watcher.cpp
-    kernel/App.cpp
-    kernel/Config.cpp
     kernel/Entry.cpp
     kernel/Lib.cpp
     kernel/OS.cpp
@@ -150,6 +144,9 @@ set(SOURCES
 
 if (WITH_EVENTS)
     list(APPEND HEADERS
+        io/json/JsonConfig.h
+        kernel/App.h
+        kernel/Config.h
         kernel/EventListener.h
         kernel/Events.h
         kernel/events/ConfigEvent.h
@@ -170,6 +167,9 @@ if (WITH_EVENTS)
         )
 
     list(APPEND SOURCES
+        io/json/JsonConfig.cpp
+        kernel/App.cpp
+        kernel/Config.cpp
         kernel/EventListener.cpp
         kernel/Events.cpp
         kernel/events/SaveEvent.cpp
@@ -179,16 +179,28 @@ if (WITH_EVENTS)
         kernel/services/LogService.cpp
         kernel/services/SignalService.cpp
         )
-endif()
 
-if (WITH_DEBUG_LOG)
+    if (WITH_DEBUG_LOG)
+        list(APPEND SOURCES
+            kernel/events/ConfigEvent.cpp
+            kernel/events/ConsoleEvent.cpp
+            kernel/events/Event.cpp
+            kernel/events/ExitEvent.cpp
+            kernel/events/PrintEvent.cpp
+            kernel/events/SignalEvent.cpp
+            )
+    endif()
+else()
+    list(APPEND HEADERS
+        kernel/v6/Base.h
+        kernel/v6/config/BaseConfig.h
+        kernel/v6/config/BaseTransform.h
+        )
+
     list(APPEND SOURCES
-        kernel/events/ConfigEvent.cpp
-        kernel/events/ConsoleEvent.cpp
-        kernel/events/Event.cpp
-        kernel/events/ExitEvent.cpp
-        kernel/events/PrintEvent.cpp
-        kernel/events/SignalEvent.cpp
+        kernel/v6/Base.cpp
+        kernel/v6/config/BaseConfig.cpp
+        kernel/v6/config/BaseTransform.cpp
         )
 endif()
 
@@ -288,8 +300,12 @@ if (WITH_HTTP)
 endif()
 
 if (WITH_TLS)
+    if (WITH_EVENTS)
+        list(APPEND HEADERS kernel/services/TlsService.h)
+        list(APPEND SOURCES kernel/services/TlsService.cpp)
+    endif()
+
     list(APPEND HEADERS
-        kernel/services/TlsService.h
         net/stratum/Tls.h
         net/tls/ServerTls.h
         net/tls/TlsConfig.h
@@ -297,8 +313,7 @@ if (WITH_TLS)
         net/tls/TlsGen.h
         )
 
-    list(APPEND SOURCES
-        kernel/services/TlsService.cpp
+    list(APPEND SOURCES        
         net/stratum/Tls.cpp
         net/tls/ServerTls.cpp
         net/tls/TlsConfig.cpp

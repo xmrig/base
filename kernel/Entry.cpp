@@ -51,7 +51,7 @@ static bool showVersion(int &/*rc*/)
               << " built on " __DATE__ " with " << Versions::kCompiler << "/" << Process::versions().get(Versions::kCompiler)
               << " (" << OS::arch << ")" << std::endl;
 
-#   ifdef XMRIG_LEGACY
+#   ifndef XMRIG_FEATURE_EVENTS
     std::cout << std::endl << "uv/" << Process::versions().get(Versions::kUv) << std::endl;
 
 #   ifdef XMRIG_FEATURE_TLS
@@ -148,7 +148,7 @@ xmrig::Entry::Entry(const Usage &usage)
         std::cout << "Usage: " APP_ID " [OPTIONS]\n";
         std::cout << usage();
 
-#       ifndef XMRIG_LEGACY
+#       ifdef XMRIG_FEATURE_EVENTS
         std::cout << "\nBase:\n";
         std::cout << "  -h, --help                    print this help and exit\n";
         std::cout << "  -V, --version                 print " APP_ID " version and exit\n";

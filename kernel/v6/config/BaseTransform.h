@@ -39,7 +39,7 @@ class Process;
 class BaseTransform : public IConfigTransform
 {
 public:
-    static void load(JsonChain &chain, Process *process, IConfigTransform &transform);
+    static void load(JsonChain &chain, IConfigTransform &transform);
 
 protected:
     void finalize(rapidjson::Document &doc) override;

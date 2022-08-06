@@ -71,9 +71,4 @@ static inline uint64_t xmrig_umul128(uint64_t multiplier, uint64_t multiplicand,
 #endif
 
 
-#if defined(XMRIG_LEGACY)
-#   define __umul128 xmrig_umul128
-#endif
-
-
 #endif // XMRIG_UMUL128_H

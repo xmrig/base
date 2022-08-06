@@ -161,7 +161,7 @@ xmrig::Versions::Versions()
     m_data.insert({ kSqlite,        sqlite3_libversion() });
 #   endif
 
-#   if defined(XMRIG_FEATURE_HWLOC) && defined(XMRIG_LEGACY)
+#   if defined(XMRIG_FEATURE_HWLOC) && !defined(XMRIG_FEATURE_EVENTS)
     m_data.insert({ kHwloc,         String(Cpu::info()->backend()).split('/')[1] });
 #   endif
 

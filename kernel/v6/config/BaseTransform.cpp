@@ -44,13 +44,13 @@
 #endif
 
 
-void xmrig::BaseTransform::load(JsonChain &chain, Process *process, IConfigTransform &transform)
+void xmrig::BaseTransform::load(JsonChain &chain, IConfigTransform &transform)
 {
     using namespace rapidjson;
 
     int key     = 0;
-    int argc    = process->arguments().argc();
-    char **argv = process->arguments().argv();
+    int argc    = Process::arguments().argc();
+    char **argv = Process::arguments().argv();
 
     Document doc(kObjectType);
 

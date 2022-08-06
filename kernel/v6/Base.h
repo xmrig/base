@@ -39,9 +39,9 @@ class Process;
 class Base : public IWatcherListener, public IApiListener
 {
 public:
-    XMRIG_DISABLE_COPY_MOVE_DEFAULT(Base)
+    XMRIG_DISABLE_COPY_MOVE(Base)
 
-    Base(Process *process);
+    Base();
     ~Base() override;
 
     virtual bool isReady() const;

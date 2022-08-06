@@ -96,7 +96,7 @@ public:
     String userAgent;
     Versions versions;
 
-#   ifndef XMRIG_LEGACY
+#   ifdef XMRIG_FEATURE_EVENTS
     Events events;
 #   endif
 };

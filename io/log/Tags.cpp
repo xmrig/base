@@ -33,10 +33,8 @@ const char *tls_tag()
 
 
 } // namespace xmrig
-#endif
 
 
-#ifdef XMRIG_LEGACY
 const char *xmrig::Tags::config()
 {
     static const char *tag = CYAN_BG_BOLD(WHITE_BOLD_S " config  ");
