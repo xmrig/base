@@ -1,8 +1,8 @@
 /* XMRig
  * Copyright (c) 2018      Lee Clagett <https://github.com/vtnerd>
  * Copyright (c) 2019      Howard Chu  <https://github.com/hyc>
- * Copyright (c) 2018-2021 SChernykh   <https://github.com/SChernykh>
- * Copyright (c) 2016-2021 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright (c) 2018-2022 SChernykh   <https://github.com/SChernykh>
+ * Copyright (c) 2016-2022 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -41,7 +41,13 @@ xmrig::Job::Job(bool nicehash, const Algorithm &algorithm, const String &clientI
 
 bool xmrig::Job::isEqual(const Job &other) const
 {
-    return m_id == other.m_id && m_clientId == other.m_clientId && memcmp(m_blob, other.m_blob, sizeof(m_blob)) == 0 && m_target == other.m_target;
+    return m_id == other.m_id && m_clientId == other.m_clientId && isEqualBlob(other) && m_target == other.m_target;
+}
+
+
+bool xmrig::Job::isEqualBlob(const Job &other) const
+{
+    return (m_size == other.m_size) && (memcmp(m_blob, other.m_blob, m_size) == 0);
 }
 
 
@@ -51,19 +57,19 @@ bool xmrig::Job::setBlob(const char *blob)
         return false;
     }
 
-    m_size = strlen(blob);
-    if (m_size % 2 != 0) {
+    size_t size = strlen(blob);
+    if (size % 2 != 0) {
         return false;
     }
 
-    m_size /= 2;
+    size /= 2;
 
     const size_t minSize = nonceOffset() + nonceSize();
-    if (m_size < minSize || m_size >= sizeof(m_blob)) {
+    if (size < minSize || size >= sizeof(m_blob)) {
         return false;
     }
 
-    if (!Cvt::fromHex(m_blob, sizeof(m_blob), blob, m_size * 2)) {
+    if (!Cvt::fromHex(m_blob, sizeof(m_blob), blob, size * 2)) {
         return false;
     }
 
@@ -73,8 +79,10 @@ bool xmrig::Job::setBlob(const char *blob)
 
 #   ifdef XMRIG_PROXY_PROJECT
     memset(m_rawBlob, 0, sizeof(m_rawBlob));
-    memcpy(m_rawBlob, blob, m_size * 2);
+    memcpy(m_rawBlob, blob, size * 2);
 #   endif
+
+    m_size = size;
 
     return true;
 }
